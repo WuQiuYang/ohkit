@@ -1,0 +1,1 @@
+lerna publish prepatch --preid beta --no-private --ignore-scripts --exact

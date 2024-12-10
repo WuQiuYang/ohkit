@@ -1,0 +1,68 @@
+@use '../../style/global.scss' as global;
+
+$text-ellipsis-color: #709bff; // #4c84ff;
+$btn-fold-color: #4c84ff; // #727a8b;
+$prefix: global.$comp-prefix;
+
+@mixin text-ellipsis-break() {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.#{$prefix}-text-ellipsis__ {
+  &container {
+    display: flex; // INFO: 这里必须非block, safari 13.1.3版本有bug 折叠切换时节点高度未更新
+    position: relative;
+
+    // 保留dom用于计算高度, 不影响视图
+    .offset-height-computer {
+      visibility: hidden;
+      position: absolute;
+      pointer-events: none;
+      z-index: -1;
+      @include text-ellipsis-break();
+    }
+    .text-ellipsis-inner {
+      overflow: hidden;
+      position: relative;
+      display: -webkit-box;
+      text-overflow: ellipsis;
+      -webkit-box-orient: vertical;
+      @include text-ellipsis-break();
+
+
+      .btn-fold-wrapper {
+        position: absolute;
+        bottom: 0;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $btn-fold-color;
+        user-select: none;
+        cursor: pointer;
+        &:hover {
+          color: $text-ellipsis-color;
+        }
+        // 展开按钮在右侧
+        &-right {
+          right: 0;
+          padding-left: 24px;
+        }
+        // 展开按钮在底部（蒙层模式）
+        &-bottom {
+          width: 100%;
+        }
+
+        .btn-fold {
+          display: inline-block;
+          // color: inherit;
+          // font-size: 12px;
+          // border: none;
+          // background-color: transparent;
+        }
+      }
+  
+    }
+  }
+}

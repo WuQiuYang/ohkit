@@ -1,0 +1,33 @@
+---
+- name: TextEllipsis
+- route: /text-ellipsis
+- menu: components
+---
+import { Playground } from '../../mdx-playground';
+import { text, element } from './__test__/data';
+import {TextEllipsis} from '.';
+
+# TextEllipsis
+文本折叠组件
+
+## Basic
+
+<Playground>
+{() => {
+    return <>
+        <h4>uiType = 'right': 按钮在右侧</h4>
+        <TextEllipsis lines={2} >
+            {text}
+        </TextEllipsis>
+        <hr />
+        <h4>uiType = 'bottom': 按钮在底部（适用于富文本的截断）</h4>
+        <TextEllipsis lines={2} uiType="bottom" >
+            {text}
+        </TextEllipsis>
+        <h4>Content = 'ReactNode': 富文本的截断</h4>
+        <TextEllipsis lines={7} uiType="bottom" >
+            {element}
+        </TextEllipsis>
+    </>;
+}}
+</Playground>

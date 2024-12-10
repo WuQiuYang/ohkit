@@ -1,0 +1,42 @@
+{
+  "name": "@ohkit/measure",
+  "version": "0.0.1-beta.0",
+  "description": "可观测dom尺寸变化的高阶容器组件",
+  "keywords": [
+    "measure",
+    "ResizeObserver"
+  ],
+  "author": "wuqiuyang <wuqiuyang305@126.com>",
+  "homepage": "",
+  "license": "ISC",
+  "source": "src/index.@(js|jsx|mjs|ts|tsx)",
+  "main": "dist/index.js",
+  "umd:main": "dist/index.umd.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "dist": "dist",
+    "test": "__tests__"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "node ./src/__tests__/index.js",
+    "build": "npm run clean && microbundle --jsx React.createElement",
+    "dev": "npm run watch",
+    "watch": "microbundle watch --jsx React.createElement",
+    "clean": "rimraf dist"
+  },
+  "peerDependencies": {
+    "react": ">=15 <19",
+    "react-dom": ">=15 <19",
+    "lodash-es": ">=3"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0"
+  },
+  "dependencies": {
+    "resize-observer-polyfill": "^1.5.1"
+  }
+}

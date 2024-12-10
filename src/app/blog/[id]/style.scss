@@ -1,0 +1,26 @@
+.md-container {
+    h1 {
+        font-size: 2em;
+    }
+    h2 {
+        font-size: 1.5em;
+    }
+    h3 {
+        font-size: 1.17em;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: bold;
+    }
+    p {
+        margin-top: 1em;
+        margin-bottom: 1em;
+    }
+    pre {
+        margin: 1em 0px;
+        padding: 8px;
+        background-color: #eee;
+        border-radius: 4px;
+        white-space: pre-wrap;
+    }
+}

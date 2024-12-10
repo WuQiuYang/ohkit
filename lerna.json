@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/lerna/schemas/lerna-schema.json",
+  "useNx": true,
+  "version": "independent",
+  "packages": [
+    "src/components/*",
+    "src/utils",
+    "./"
+  ],
+  "publish": {
+    "registry": "https://registry.npmjs.org"
+  }
+}
