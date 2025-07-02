@@ -24,7 +24,7 @@
     "build": "npm run clean && microbundle  --jsx React.createElement",
     "dev": "npm run watch",
     "watch": "microbundle watch --jsx React.createElement",
-    "clean": "rimraf dist"
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "@ohkit/utils": "0.0.1-beta.0",

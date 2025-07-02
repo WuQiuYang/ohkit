@@ -26,7 +26,7 @@
     "build": "npm run clean && microbundle --jsx React.createElement",
     "dev": "npm run watch",
     "watch": "microbundle watch --jsx React.createElement",
-    "clean": "rimraf dist"
+    "clean": "rm -rf dist"
   },
   "peerDependencies": {
     "react": ">=15 <19",

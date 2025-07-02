@@ -20,7 +20,7 @@ import { Measure } from "@ohkit/measure";
 
 import cx from "classnames";
 
-export const c = p("hcm-text-ellipsis__");
+export const c = p("ohkit-text-ellipsis__");
 
 export interface TextEllipsisProps {
   /**
