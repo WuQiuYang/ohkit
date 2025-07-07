@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Button, SvgPlainDown, SvgPlainUp } from '@befe/brick';
-import '@befe/brick/style/components.css';
+import { Button } from 'antd';
+import { DownOutlined, UpOutlined } from '@ant-design/icons';
 
 import { TextEllipsis } from '.';
 import { text, element } from './__test__/data';
@@ -26,12 +26,11 @@ export const RightCustom: Story = {
     lines: 2,
     content: text,
     renderFoldButton: (fold) => {
-      // @ts-ignore
       return <Button
-        size='md'
-        type='plain'
+        size='middle'
+        type='text'
         color='primary'
-        icon={fold ? SvgPlainDown : SvgPlainUp}
+        icon={fold ? <DownOutlined /> : <UpOutlined />}
       >
         自定义{fold ? '展开' : '收起'}按钮
       </Button>;

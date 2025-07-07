@@ -27,11 +27,10 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ohkit/utils": "0.0.1-beta.0",
-    "@ohkit/measure": "0.0.1-beta.0"
+    "@ohkit/measure": "0.0.1-beta.0",
+    "@ohkit/utils": "0.0.1-beta.0"
   },
   "devDependencies": {
-    "@befe/brick": "^0.2.142",
     "@types/react": "^17.0.2"
   },
   "peerDependencies": {

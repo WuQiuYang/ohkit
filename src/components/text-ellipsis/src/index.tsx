@@ -8,21 +8,25 @@ import React, {
   useState,
   useMemo,
   useEffect,
-  useLayoutEffect,
   useCallback,
   useRef,
   PropsWithChildren,
   MouseEvent,
 } from "react";
 import "./style.scss";
-import { isSafari, prefixClassname as p, assignRef, useRuntime } from "@ohkit/utils";
+import {
+  isSafari,
+  prefixClassname as p,
+  classNames as cx,
+  assignRef,
+  useRuntime,
+  useCompatibleEffect,
+} from "@ohkit/utils";
 import { Measure } from "@ohkit/measure";
-
-import cx from "classnames";
 
 export const c = p("ohkit-text-ellipsis__");
 
-export interface TextEllipsisProps {
+interface ITextEllipsis {
   /**
    * right | bottom 展开按钮在右下侧还是底部
    * @default right
@@ -75,6 +79,8 @@ export interface TextEllipsisProps {
   onEllipsisChange?: (ellipsis: boolean) => void;
 }
 
+export type TextEllipsisProps = PropsWithChildren<ITextEllipsis>;
+
 export function TextEllipsis({
   className,
   /**
@@ -107,7 +113,7 @@ export function TextEllipsis({
   renderFoldButton,
   onEllipsisChange,
   onFoldChange,
-}: PropsWithChildren<TextEllipsisProps>) {
+}: TextEllipsisProps) {
   // 是否截断
   const [ellipsis, setEllipsis] = useState(false);
   const [getLineHeightFail, setGetLineHeightFail] = useState(false);
@@ -286,7 +292,7 @@ export function TextEllipsis({
 
   // 监听内容高度，是否需要折叠
   // 用useLayoutEffect方式闪屏显示
-  useLayoutEffect(() => {
+  useCompatibleEffect(() => {
     resetState();
     calcEllipsis();
   }, [calcEllipsis, resetState]);
@@ -316,8 +322,9 @@ export function TextEllipsis({
       {/* 此dom仅用于计算高度 用.text-ellipsis-inner计算 在不重新初始化情况下切换文本时高度计算有问题 */}
       <Measure offset>
         {({measureRef, contentRect}) => {
-          // console.log('contentRect:', contentRect.offset?.height, contentRect.offset?.width);
-          if (contentRect.offset && Math.abs((contentRect.offset.height || 0) - runtime.contentOffsetHeight) > 1) {
+          // console.log('contentRect:', contentRect.offset?.height, runtime.contentOffsetHeight);
+          const {height} = contentRect.offset || {};
+          if (height !== undefined && Math.abs(height - runtime.contentOffsetHeight) > 1) {
             calcEllipsis();
           }
           return <div className={"offset-height-computer"} ref={(r) => {
