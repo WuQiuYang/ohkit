@@ -176,7 +176,7 @@ export function withContentRect(types?: IGetContentRectOptions) {
 
             if (this._node && (this.props.position || this.props.scroll)) {
                 const scrollContainer = findScrollContainer(this._node, {includeSelf: this.props.scroll});
-                console.log('scrollContainer: ', scrollContainer);
+                // console.log('scrollContainer: ', scrollContainer);
                 this.bindScrollEvent(scrollContainer);
             }
         }
