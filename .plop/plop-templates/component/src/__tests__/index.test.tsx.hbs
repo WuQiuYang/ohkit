@@ -1,0 +1,10 @@
+import React from 'react';
+import { render } from '@testing-library/react';
+import { {{properCase name}} } from '../index';
+
+describe('{{properCase name}}', () => {
+  it('renders correctly', () => {
+    const { container } = render(<{{properCase name}} />);
+    expect(container.firstChild).toMatchSnapshot();
+  });
+});

@@ -1,0 +1,26 @@
+import React, {PropsWithChildren} from 'react';
+import {
+  prefixClassname as p,
+  classNames as cx,
+} from "@ohkit/utils";
+
+import './style.scss';
+
+export const c = p("ohkit-{{name}}__");
+
+interface I{{properCase name}} {
+  className?: string;
+}
+
+export type {{properCase name}}Props = PropsWithChildren<I{{properCase name}}>;
+
+export const {{properCase name}}: React.FC<{{properCase name}}Props> = ({ 
+  children,
+  className = ''
+}) => {
+  return (
+    <div className={cx(c('container'), className)}>
+      {children}
+    </div>
+  );
+};
