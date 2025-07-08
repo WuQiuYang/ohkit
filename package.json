@@ -16,7 +16,8 @@
     "lerna:dev": "lerna run dev --parallel --no-private",
     "lerna:build": "lerna run build --no-private",
     "lerna:bootstrap": "lerna bootstrap -- --legacy-peer-deps",
-    "lerna:publish": "lerna publish --no-private",
+    "lerna:publish": "lerna publish --no-private --exact --registry=https://registry.npmjs.org/",
+    "lerna:release": "npm run lerna:build & npm run lerna:publish",
     "plop": "cross-env NODE_OPTIONS='--import tsx' plop --plopfile=.plop/index.ts",
     "i": "node ./scripts/install-deps.js",
     "i-d": "node ./scripts/install-deps.js -D"
