@@ -21,6 +21,14 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WuQiuYang/ohkit"
+  },
   "scripts": {
     "test": "node ./src/__tests__/index.js",
     "build": "npm run clean && microbundle --jsx React.createElement",
@@ -29,14 +37,15 @@
     "clean": "rm -rf dist"
   },
   "peerDependencies": {
+    "lodash-es": ">=3",
     "react": ">=15 <19",
-    "react-dom": ">=15 <19",
-    "lodash-es": ">=3"
+    "react-dom": ">=15 <19"
   },
   "devDependencies": {
     "@types/react": "^18.0.0"
   },
   "dependencies": {
     "resize-observer-polyfill": "^1.5.1"
-  }
+  },
+  "gitHead": "3d62d95c06d9a8e0e52d68c924960e3b48d82238"
 }

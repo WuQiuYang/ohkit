@@ -20,6 +20,14 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WuQiuYang/ohkit"
+  },
   "scripts": {
     "build": "npm run clean && microbundle  --jsx React.createElement",
     "dev": "npm run watch",
@@ -37,5 +45,6 @@
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"
-  }
+  },
+  "gitHead": "3d62d95c06d9a8e0e52d68c924960e3b48d82238"
 }
