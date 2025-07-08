@@ -5,7 +5,7 @@
 ## Usage
 
 ```
-const hcmMeasure = require('@ohkit/measure');
+const ohkitMeasure = require('@ohkit/measure');
 
 // TODO: DEMONSTRATE API
 ```
