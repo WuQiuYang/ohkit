@@ -37,7 +37,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <div className="flex justify-between h-16">
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
-                <Link href="/" className="text-2xl font-bold text-purple-600">BPIT-HCM</Link>
+                <Link href="/" className="text-2xl font-bold text-purple-600">Oh! Kit!</Link>
               </div>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:items-center">
@@ -131,13 +131,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <h3 className="text-lg font-semibold text-gray-800 mb-2">外部链接</h3>
             <ul className="space-y-2">
               <li>
-                <a href="https://github.com/zhangsan" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">
+                <a href="https://github.com/wuqiuyang" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">
                   GitHub
                 </a>
               </li>
               <li>
-                <a href="https://linkedin.com/in/zhangsan" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">
-                  LinkedIn
+                <a href="https://juejin.cn/user/2444939577276279" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">
+                  Juejin
                 </a>
               </li>
             </ul>

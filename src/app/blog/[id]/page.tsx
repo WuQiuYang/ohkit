@@ -155,7 +155,7 @@ export default async function BlogPost({ params }: { params: Promise<{ id: strin
   const post = posts[id as keyof typeof posts]
 
   if (!post) {
-    return <div>Post not found</div>
+    return <Layout><div>Post not found</div></Layout>
   }
 
   return (

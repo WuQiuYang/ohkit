@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
-import path from "path";
+// import path from "path";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  transpilePackages: ['next-mdx-remote'],
   // webpack(config, options) {
   //   // 查找现有的 Sass 规则
   //   const sassRules = config.module.rules

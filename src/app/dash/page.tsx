@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import {Checkbox} from '../../components/checkbox/src'
+import {Checkbox} from 'antd';
 
 export function List() {
   const [list, setList] = React.useState([
@@ -36,7 +36,7 @@ export function List() {
       {list.map((item, index) => {
         const { checked, label, value, onChange } = item;
         return (
-            <Checkbox key={value} checked={checked} label={label} onChange={onChange}/>
+            <Checkbox key={value} checked={checked} name={label} onChange={(evt) => onChange(evt.target.checked)}/>
         );
       })}
     </div>
