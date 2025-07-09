@@ -1,5 +1,5 @@
 import {useEffect, useLayoutEffect} from 'react';
-import {inBrowser} from '../platform';
+import {inBrowser} from '../../platform';
 
 /**
  * 使用兼容的副作用钩子函数
