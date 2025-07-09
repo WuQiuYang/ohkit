@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { text } from '../__tests__/data';
+import { text } from './data';
 import { Measure } from '.';
 
 const meta = {
