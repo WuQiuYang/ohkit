@@ -5,6 +5,7 @@
   "scripts": {
     "site": "npm run next:dev & npm run storybook:dev",
     "dev": "npm run lerna:dev & npm run site",
+    "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "next:dev": "NODE_OPTIONS='--inspect' next dev --turbopack",
@@ -17,7 +18,7 @@
     "lerna:build": "lerna run build --no-private",
     "lerna:bootstrap": "lerna bootstrap -- --legacy-peer-deps",
     "lerna:publish": "lerna publish --no-private --exact --registry=https://registry.npmjs.org/",
-    "lerna:release": "npm run lerna:build & npm run lerna:publish",
+    "lerna:release": "npm run test && npm run lerna:build && npm run lerna:publish",
     "plop": "cross-env NODE_OPTIONS='--import tsx' plop --plopfile=.plop/index.ts",
     "i": "node ./scripts/install-deps.js",
     "i-d": "node ./scripts/install-deps.js -D"
