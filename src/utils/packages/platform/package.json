@@ -1,25 +1,17 @@
 {
-  "name": "@ohkit/utils",
+  "name": "@ohkit/platform",
   "version": "0.0.1-beta.0",
-  "description": "some utils",
-  "keywords": [
-    "@ohkit",
-    "utils"
-  ],
-  "author": "wuqiuyang <wuqiuyang305@126.com>",
+  "description": "常用的宿主环境判断方法,考虑SSR场景",
+  "keywords": ["platform"],
   "homepage": "",
   "license": "ISC",
   "source": "src/index.@(js|jsx|mjs|ts|tsx)",
   "main": "dist/index.js",
   "umd:main": "dist/index.umd.js",
-  "module": "dist/index.mjs",
+  "module": "dist/index.module.js",
   "types": "dist/index.d.ts",
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
-  },
   "files": [
-    "lib"
+    "dist"
   ],
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
@@ -32,19 +24,13 @@
   "scripts": {
     "build": "npm run clean && microbundle --jsx React.createElement",
     "dev": "npm run watch",
-    "watch": "microbundle watch --jsx React.createElement",
+    "watch": "microbundle watch --jsx React.createElement  --no-compress",
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ohkit/async": "^0.0.1-beta.0",
-    "@ohkit/auto-reporter": "^0.0.1-beta.0",
-    "@ohkit/platform": "^0.0.1-beta.0",
-    "@ohkit/react-helper": "^0.0.1-beta.0",
-    "@ohkit/prefix-classname": "^0.0.1-beta.0"
   },
   "devDependencies": {
   },
   "peerDependencies": {
-  },
-  "gitHead": "3d62d95c06d9a8e0e52d68c924960e3b48d82238"
+  }
 }

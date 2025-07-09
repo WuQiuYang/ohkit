@@ -1,4 +1,5 @@
 
+
 /**
  * 判断是否是浏览器环境
  */
@@ -28,3 +29,11 @@ export const isFirefox = safeRunInSSR(
     () => (/(firefox)/i).test(window.navigator.userAgent),
     () => false,
 )
+
+export const platform = {
+    global: safeGlobalObject,
+    isChrome,
+    isSafari,
+    isFirefox,
+    inBrowser,
+};

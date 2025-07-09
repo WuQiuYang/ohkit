@@ -3,7 +3,7 @@
  * @description 适用于自动保存、操作频次打点等场景（综合考虑时长与频率）
  */
 
-import {PromisePipe} from '../async/promise-pipe';
+import {PromisePipe} from '@ohkit/async';
 
 type Reporter = () => Promise<unknown> | void;
 
