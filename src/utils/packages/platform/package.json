@@ -2,7 +2,9 @@
   "name": "@ohkit/platform",
   "version": "0.0.1-beta.0",
   "description": "常用的宿主环境判断方法,考虑SSR场景",
-  "keywords": ["platform"],
+  "keywords": [
+    "platform"
+  ],
   "homepage": "",
   "license": "ISC",
   "source": "src/index.@(js|jsx|mjs|ts|tsx)",
@@ -26,11 +28,5 @@
     "dev": "npm run watch",
     "watch": "microbundle watch --jsx React.createElement  --no-compress",
     "clean": "rm -rf dist"
-  },
-  "dependencies": {
-  },
-  "devDependencies": {
-  },
-  "peerDependencies": {
   }
 }

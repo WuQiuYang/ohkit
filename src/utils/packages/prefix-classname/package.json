@@ -2,7 +2,9 @@
   "name": "@ohkit/prefix-classname",
   "version": "0.0.1-beta.0",
   "description": "add prefix for classnames",
-  "keywords": ["prefix-classname"],
+  "keywords": [
+    "prefix-classname"
+  ],
   "homepage": "",
   "license": "ISC",
   "source": "src/index.@(js|jsx|mjs|ts|tsx)",
@@ -29,9 +31,5 @@
   },
   "dependencies": {
     "classnames": "^2.5.1"
-  },
-  "devDependencies": {
-  },
-  "peerDependencies": {
   }
 }

@@ -2,7 +2,9 @@
   "name": "@ohkit/react-helper",
   "version": "0.0.1-beta.0",
   "description": "some utils and hooks for react",
-  "keywords": ["react-helper"],
+  "keywords": [
+    "react-helper"
+  ],
   "homepage": "",
   "license": "ISC",
   "source": "src/index.@(js|jsx|mjs|ts|tsx)",
