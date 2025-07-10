@@ -1,0 +1,37 @@
+{
+  "name": "@ohkit/json-helper",
+  "version": "0.0.1-beta.0",
+  "description": "some utils for JSON ",
+  "keywords": ["json-helper"],
+  "homepage": "",
+  "license": "ISC",
+  "source": "src/index.@(js|jsx|mjs|ts|tsx)",
+  "main": "dist/index.js",
+  "umd:main": "dist/index.umd.js",
+  "module": "dist/index.module.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WuQiuYang/ohkit"
+  },
+  "scripts": {
+    "build": "npm run clean && microbundle --jsx React.createElement",
+    "dev": "npm run watch",
+    "watch": "microbundle watch --jsx React.createElement  --no-compress",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@ohkit/debug": "^0.0.1-beta.0"
+  },
+  "devDependencies": {
+  },
+  "peerDependencies": {
+  }
+}
