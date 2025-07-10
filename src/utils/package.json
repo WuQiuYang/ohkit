@@ -40,7 +40,9 @@
     "@ohkit/auto-reporter": "0.0.1-beta.0",
     "@ohkit/platform": "0.0.1-beta.0",
     "@ohkit/prefix-classname": "0.0.1-beta.0",
-    "@ohkit/react-helper": "0.0.1-beta.0"
+    "@ohkit/react-helper": "0.0.1-beta.0",
+    "@ohkit/json-helper": "0.0.1-beta.0",
+    "@ohkit/debug": "0.0.1-beta.0"
   },
   "gitHead": "3d62d95c06d9a8e0e52d68c924960e3b48d82238"
 }
