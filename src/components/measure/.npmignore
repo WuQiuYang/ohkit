@@ -2,3 +2,6 @@ __test__
 tsconfig.json
 ./node_modules
 .npmrc
+*.stories.*
+*.test.*
+*.mdx
