@@ -43,6 +43,9 @@ interface ITextEllipsis
    * @default right
    */
   uiType?: "right" | "bottom";
+  /**
+   * 自定义样式类名，会附加到根元素上
+   */
   className?: string;
   /**
    * （单位:px）未传入或无效（0也视为无效）则自动取当前文本的行高
