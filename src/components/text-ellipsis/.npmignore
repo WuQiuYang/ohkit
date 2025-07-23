@@ -1,7 +1,7 @@
-src/__test__/**
+__test__
 tsconfig.json
 ./node_modules
 .npmrc
-src/*.stories.*
+*.stories.*
 *.test.*
-src/*.mdx
+*.mdx
