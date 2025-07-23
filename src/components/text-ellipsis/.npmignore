@@ -4,4 +4,4 @@ tsconfig.json
 .npmrc
 *.stories.*
 *.test.*
-*.mdx
+**/*.mdx
