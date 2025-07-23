@@ -19,19 +19,19 @@ npm run site
 # 或者只启动 Next.js 开发服务器（使用 Turbopack）
 npm run dev
 # 或
-npm run next:dev
+npm run dev:next
 
 # 或者只启动 Storybook 开发服务器
-npm run storybook:dev
+npm run dev:storybook
 
 # 或者并行运行所有组件的开发模式
-npm run lerna:dev
+npm run dev:lerna
 
 # 构建所有包
-npm run lerna:build
+npm run build:lerna
 
-# 构建指定的包 eg: npm run lerna:build -- --scope @ohkit/text-ellipsis
-npm run lerna:build -- --scope {{package-name}}
+# 构建指定的包 eg: npm run build:lerna -- --scope @ohkit/text-ellipsis
+npm run build:lerna -- --scope {{package-name}}
 ```
 
 在浏览器中打开以下地址查看结果：
