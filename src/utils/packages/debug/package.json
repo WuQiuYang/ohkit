@@ -1,8 +1,10 @@
 {
   "name": "@ohkit/debug",
-  "version": "0.0.1-beta.0",
+  "version": "0.0.1",
   "description": "print debug log or tips",
-  "keywords": ["debug"],
+  "keywords": [
+    "debug"
+  ],
   "homepage": "",
   "license": "ISC",
   "source": "src/index.@(js|jsx|mjs|ts|tsx)",
@@ -26,11 +28,5 @@
     "dev": "npm run watch",
     "watch": "microbundle watch --jsx React.createElement  --no-compress",
     "clean": "rm -rf dist"
-  },
-  "dependencies": {
-  },
-  "devDependencies": {
-  },
-  "peerDependencies": {
   }
 }

@@ -1,8 +1,10 @@
 {
   "name": "@ohkit/json-helper",
-  "version": "0.0.1-beta.0",
+  "version": "0.0.1",
   "description": "some utils for JSON ",
-  "keywords": ["json-helper"],
+  "keywords": [
+    "json-helper"
+  ],
   "homepage": "",
   "license": "ISC",
   "source": "src/index.@(js|jsx|mjs|ts|tsx)",
@@ -28,10 +30,6 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ohkit/debug": "^0.0.1-beta.0"
-  },
-  "devDependencies": {
-  },
-  "peerDependencies": {
+    "@ohkit/debug": "0.0.1"
   }
 }

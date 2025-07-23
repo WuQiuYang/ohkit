@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/async",
-  "version": "0.0.1-beta.0",
+  "version": "0.0.1",
   "description": "some async utils",
   "keywords": [
     "async"
