@@ -52,6 +52,15 @@ $prefix: global.$comp-prefix;
         // 展开按钮在底部（蒙层模式）
         &-bottom {
           width: 100%;
+          &.placement-left {
+            justify-content: flex-start;
+          }
+          &.placement-center {
+            justify-content: center;
+          }
+          &.placement-right {
+            justify-content: flex-end;
+          }
         }
 
         .btn-fold {
