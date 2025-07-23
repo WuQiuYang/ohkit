@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/prefix-classname",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "add prefix for classnames",
   "keywords": [
     "prefix-classname"

@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/debug",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "print debug log or tips",
   "keywords": [
     "debug"
@@ -12,7 +12,6 @@
   "umd:main": "dist/index.umd.js",
   "module": "dist/index.module.js",
   "types": "dist/index.d.ts",
-
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
