@@ -162,6 +162,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
   const [textContent, setTextContent] = useState('');
 
   const [runtime] = useRuntime({
+    inited: false, // mounted
     contentOffsetHeight: 0,
     ellipsis,
     fold,
@@ -372,13 +373,18 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
         : undefined;
   }, [titleWhenFold, ellipsis, fold, textContent]);
   useEffect(() => {
+    if (runtime.inited) {      
       onStatusChange?.({
           ellipsis,
           fold,
           title: hoverTitle
       });
+    }
   }, [onStatusChange, fold, ellipsis, hoverTitle]);
-  console.log('[render TextEllipsis]: ellipsis fold: ', ellipsis, fold);
+  useEffect(() => {
+    runtime.inited = true;
+  }, []);
+  // console.log('[render TextEllipsis]: ellipsis fold runtime.inited: ', ellipsis, fold, runtime.inited);
   return (
     <div
       className={cx(c("container"), className)}
@@ -400,7 +406,6 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
           // console.log('contentRect:', contentRect.offset?.height, runtime.contentOffsetHeight);
           const {height} = contentRect.offset || {};
           if (height !== undefined && Math.abs(height - runtime.contentOffsetHeight) > 1) {
-            console.log('calcEllipsis');
             calcEllipsis();
           }
           return <div className={"offset-height-computer"} ref={(r) => {
