@@ -12,9 +12,7 @@
   "umd:main": "dist/index.umd.js",
   "module": "dist/index.module.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
