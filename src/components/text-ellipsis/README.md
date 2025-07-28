@@ -20,6 +20,7 @@ npm install @ohkit/text-ellipsis
 
 ```tsx
 import { TextEllipsis } from '@ohkit/text-ellipsis';
+import '@ohkit/text-ellipsis/dist/index.css';
 
 function Demo() {
   return (

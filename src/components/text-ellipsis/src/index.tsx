@@ -315,6 +315,9 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     // lineHeight同步到innerLineHeight
     if (innerLineHeight !== realLineHeight) {
       setInnerLineHeight(realLineHeight);
+      if (!realLineHeight) {
+        return;
+      }
     }
     if (!lines) {
       if (runtime.contentOffsetHeight > containerDom?.offsetHeight) {
@@ -330,7 +333,8 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
       if (innerLines !== lines) {
         setInnerLines(lines);
       }
-      if (runtime.contentOffsetHeight >= (lines + 1) * realLineHeight) {
+      // 允许误差1px（行高为小数时）
+      if (runtime.contentOffsetHeight >= (lines + 1) * realLineHeight - 1) {
         resetState(true);
       } else {
         resetState(false);
@@ -387,7 +391,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
   useEffect(() => {
     runtime.inited = true;
   }, []);
-  // console.log('[render TextEllipsis]: ellipsis fold runtime.inited: ', ellipsis, fold, runtime.inited);
+  console.log('[render TextEllipsis]: ellipsis fold runtime.inited: ', ellipsis, fold, runtime.inited);
   return (
     <div
       className={cx(c("container"), className)}

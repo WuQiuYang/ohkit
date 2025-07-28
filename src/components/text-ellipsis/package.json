@@ -11,8 +11,8 @@
   "source": "src/index.@(js|jsx|mjs|ts|tsx)",
   "main": "dist/index.js",
   "umd:main": "dist/index.umd.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "module": "dist/index.es.js",
+  "types": "dist/types/index.d.ts",
   "directories": {
     "dist": "dist",
     "test": "__tests__"
@@ -26,9 +26,9 @@
     "url": "git+https://github.com/WuQiuYang/ohkit"
   },
   "scripts": {
-    "build": "npm run clean && microbundle  --jsx React.createElement",
+    "build": "npm run clean && microbundle --jsx React.createElement",
     "dev": "npm run watch",
-    "watch": "microbundle watch --jsx React.createElement",
+    "watch": "microbundle watch --jsx React.createElement --no-compress --format es --output dist/index.es.js",
     "clean": "rm -rf dist"
   },
   "dependencies": {
