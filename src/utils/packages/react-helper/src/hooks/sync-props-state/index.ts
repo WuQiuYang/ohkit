@@ -51,7 +51,7 @@ export function useSyncPropsState<T extends object, K extends keyof T, Val exten
     }, ['compare', 'onChange', 'inner', 'isFuncState']);
     const setFinalInner = useCallback((val: typeof propVal, emitChange = true) => {
         if (!runtime.compare?.(runtime.inner, val)) {
-            console.log('[useSyncPropsState] real change  pre => cur: ', runtime.inner, val);
+            // console.log('[useSyncPropsState] real change  pre => cur: ', runtime.inner, val);
             // function 类型的state 需要惰性更新
             setInner(runtime.isFuncState ? () => val : val);
             // init 时，不应触发change

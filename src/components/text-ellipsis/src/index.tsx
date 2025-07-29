@@ -99,6 +99,10 @@ interface ITextEllipsis
    */
   titleWhenFold?: string | ((title: string) => string);
   /**
+   * 是否保留换行
+   */
+  whiteSpace?: React.CSSProperties['whiteSpace'];
+  /**
    * 自定义渲染展开按钮
    */
   renderFoldButton?: (fold: boolean) => React.ReactNode;
@@ -138,6 +142,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     unfoldText = "展开",
     uiType = "right",
     controlPlacement = 'center',
+    whiteSpace,
     renderFoldButton,
     onEllipsisChange,
     onFoldChange,
@@ -195,8 +200,9 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
       return;
     }
     return {
+      whiteSpace,
       // HACK: 兼容safari 15+ 富文本折叠高度丢失问题
-      minHeight: fold ? `${(lines - 0.5) * innerLineHeight}px` : undefined,
+      minHeight: fold ? `${(lines - 0.2) * innerLineHeight}px` : undefined,
       WebkitLineClamp: fold ? lines : undefined, // 利用-webkit-line-clamp截断方案
       // Note: safari 对WebkitLineClamp支持太差劲 判断浏览器优雅降级为高度截断方案
       // WebkitLineClamp: isSafari ? undefined :  ellipsis && fold && lines, // 利用-webkit-line-clamp截断方案
@@ -204,7 +210,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
       paddingBottom:
         uiType === "bottom" || !fold ? `${innerLineHeight}px` : undefined,
     };
-  }, [innerLines, innerLineHeight, ellipsis, fold, uiType]);
+  }, [innerLines, innerLineHeight, ellipsis, fold, uiType, whiteSpace]);
 
   // 展开｜收起 按钮样式
   const btnStyle = useMemo(() => {
@@ -220,6 +226,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
       maskBgColor.length === 4 ? "0" : "00"
     }`;
     return {
+      boxSizing: 'content-box' as const,
       height: `${innerLineHeight}px`,
       lineHeight: `${innerLineHeight}px`,
       paddingTop: uiType === "bottom" ? `${padding}px` : undefined,
@@ -391,7 +398,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
   useEffect(() => {
     runtime.inited = true;
   }, []);
-  console.log('[render TextEllipsis]: ellipsis fold runtime.inited: ', ellipsis, fold, runtime.inited);
+  // console.log('[render TextEllipsis]: ellipsis fold runtime.inited: ', ellipsis, fold, runtime.inited);
   return (
     <div
       className={cx(c("container"), className)}
@@ -415,7 +422,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
           if (height !== undefined && Math.abs(height - runtime.contentOffsetHeight) > 1) {
             calcEllipsis();
           }
-          return <div className={"offset-height-computer"} ref={(r) => {
+          return <div style={{whiteSpace}} className={"offset-height-computer"} ref={(r) => {
             assignRef(measureRef, r);
             assignRef(wrapperRef, r);
             updateTextContent();

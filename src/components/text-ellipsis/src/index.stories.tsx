@@ -22,6 +22,7 @@ export const Right: Story = {
     content: text,
   }
 };
+
 export const RightCustom: Story = {
   args: {
     lines: 2,
@@ -145,5 +146,13 @@ export const CustomWithPopover: Story = {
     onEllipsisChange: (ellipsis) => {
       console.log('触发了 onEllipsisChange 回调 ellipsis', ellipsis);
     },
+  }
+};
+
+export const ShowWhiteSpace: Story = {
+  args: {
+    lines: 2,
+    content: text,
+    whiteSpace: 'pre-line'
   }
 };
