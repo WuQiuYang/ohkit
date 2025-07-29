@@ -7,24 +7,25 @@ import {PromisePipe} from '@ohkit/async';
 
 type Reporter = () => Promise<unknown> | void;
 
-interface AutoReporterConstructorProps {
+export interface AutoReporterConstructorProps {
     /**
      * 关闭页面时需要提示用户吗？
+     * @default false
      */
-    beforeUploadTips?: string;
+    beforeUploadConfirm?: boolean;
     /**
      * change事件触发次数，达到该次数后触发上报
-     * @default: 20
+     * @default 20
      */
     maxTimes?: number;
     /**
      * change事件后，等待多少毫秒（ms）后触发上报
-     * @default: 30 * 1000
+     * @default 30000 (30 * 1000)
      */
     duration?: number;
     /**
      * 是否需要监听beforeunload事件 页面销毁前触发上报
-     * @default: true
+     * @default true
      */
     triggerFlushBeforeUnload?: boolean;
     /**
@@ -59,7 +60,7 @@ interface AutoReporterConstructorProps {
  * autoReporter.cancel();
  */
 export class AutoReporter {
-    private readonly beforeUploadTips = '';
+    private readonly beforeUploadConfirm = false;
     private readonly maxTimes = 20;
     private readonly duration = 30 * 1000;
     private readonly triggerFlushBeforeUnload = true;
@@ -74,15 +75,7 @@ export class AutoReporter {
      */
     requestPipe = new PromisePipe();
     constructor(props: AutoReporterConstructorProps) {
-        const {
-            maxTimes = 20,
-            duration = 30 * 1000,
-            triggerFlushBeforeUnload = true,
-            reportPipe = false,
-            beforeUploadTips = '',
-            onReport,
-        } = props;
-        Object.assign(this, {beforeUploadTips, maxTimes, duration, triggerFlushBeforeUnload, reportPipe, onReport});
+        this.updateConfig(props);
     }
     private start() {
         if (!this.timer) {
@@ -111,6 +104,34 @@ export class AutoReporter {
      */
     get pending() {
         return this.times > 0;
+    }
+
+    /**
+     * 更新配置
+     */
+    updateConfig(props: Partial<AutoReporterConstructorProps>) {
+        const {
+            maxTimes,
+            duration,
+            triggerFlushBeforeUnload,
+            reportPipe,
+            beforeUploadConfirm,
+            onReport,
+        } = props || {};
+        const validConfig = {
+            maxTimes,
+            duration,
+            triggerFlushBeforeUnload,
+            reportPipe,
+            beforeUploadConfirm,
+            onReport,
+        };
+        for (const key in validConfig) {
+            const val = validConfig[key as keyof AutoReporterConstructorProps];
+            if (typeof val !== 'undefined') {
+                Object.assign(this, {[key]: val});
+            }
+        }
     }
 
     /**
@@ -184,9 +205,10 @@ export class AutoReporter {
     }
 
     private readonly handleBeforeUnload = (ev: BeforeUnloadEvent) => {
-        if (this.times && this.beforeUploadTips) {
-            // 关闭页面时需要提示用户吗？
-            (ev || window.event).returnValue = '确认离开吗？'; // Gecko + IE
+        if (this.times && this.beforeUploadConfirm) {
+            ev.preventDefault();
+            // 有进行中的任务，关闭页面时需要提示用户
+            (ev || window.event).returnValue = true; // Gecko + IE
         }
         void this.flush();
     };
