@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/auto-reporter",
-  "version": "0.0.2",
+  "version": "0.0.3-alpha.0",
   "description": "数据变更上报控制器",
   "keywords": [
     "auto-reporter"
@@ -27,6 +27,6 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ohkit/async": "0.0.2"
+    "@ohkit/async": "0.0.3-alpha.0"
   }
 }

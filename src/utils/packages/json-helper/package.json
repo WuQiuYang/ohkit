@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/json-helper",
-  "version": "0.0.2",
+  "version": "0.0.3-alpha.0",
   "description": "some utils for JSON ",
   "keywords": [
     "json-helper"
@@ -27,6 +27,6 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ohkit/debug": "0.0.2"
+    "@ohkit/debug": "0.0.3-alpha.0"
   }
 }
