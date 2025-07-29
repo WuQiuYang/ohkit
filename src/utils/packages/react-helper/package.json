@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/react-helper",
-  "version": "0.0.3-alpha.0",
+  "version": "0.0.3-alpha.1",
   "description": "some utils and hooks for react",
   "keywords": [
     "react-helper"
