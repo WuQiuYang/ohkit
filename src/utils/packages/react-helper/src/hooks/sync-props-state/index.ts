@@ -41,7 +41,7 @@ export function useSyncPropsState<T extends object, K extends keyof T, Val exten
     } = options || {};
 
     // 考虑可能有 function 类型的 state 惰性初始化
-    const [inner, setInner] = useState(() => defaultValue);
+    const [inner, setInner] = useState(() => typeof propVal !== 'undefined' ? propVal : defaultValue);
 
     const [runtime] = useRuntime({
         onChange,
