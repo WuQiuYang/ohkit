@@ -154,6 +154,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     onClick,
     onFocus,
   } = props;
+  const finalContent = content || children;
   // 是否截断
   const [ellipsis, setEllipsis] = useState(false);
   const [getLineHeightFail, setGetLineHeightFail] = useState(false);
@@ -347,7 +348,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
         resetState(false);
       }
     }
-  }, [lines, innerLineHeight, resetState]);
+  }, [lines, innerLineHeight, finalContent, resetState]);
 
   // 监听内容高度，是否需要折叠
   // 用useLayoutEffect方式闪屏显示
@@ -378,7 +379,6 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
       setTextContent(newTextContent);
     }
   }, []);
-  const finalContent = content || children;
   const hoverTitle = useMemo(() => {
       return ellipsis && fold
         ? (typeof titleWhenFold === 'function'
@@ -398,7 +398,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
   useEffect(() => {
     runtime.inited = true;
   }, []);
-  // console.log('[render TextEllipsis]: ellipsis fold runtime.inited: ', ellipsis, fold, runtime.inited);
+  // console.log('[render TextEllipsis]: ellipsis fold wrapStyle: ', ellipsis, fold, wrapStyle);
   return (
     <div
       className={cx(c("container"), className)}
