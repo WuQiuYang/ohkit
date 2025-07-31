@@ -27,6 +27,8 @@ export const RightCustom: Story = {
   args: {
     lines: 2,
     content: text,
+    fold: false,
+    resetFoldWhenChildrenOrEllipsisChange: true,
     showTitleWhenFold: true,
     renderFoldButton: (fold) => {
       return <Button

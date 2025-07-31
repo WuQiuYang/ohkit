@@ -65,6 +65,11 @@ interface ITextEllipsis
    */
   content?: React.ReactNode;
   /**
+   * 当 content or children or ellipsis 变化时，重置 fold 状态 
+   * @default false
+   */
+  resetFoldWhenChildrenOrEllipsisChange?: boolean;
+  /**
    * 折叠状态
    * @default true
    */
@@ -135,6 +140,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     maskBgColor = "#fff",
     content,
     children,
+    resetFoldWhenChildrenOrEllipsisChange = false,
     showTitleWhenFold,
     titleWhenFold,
     showFoldControl = true,
@@ -174,6 +180,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     inited: false, // mounted
     contentOffsetHeight: 0,
     ellipsis,
+    defaultFold: fold, // 记录一下默认的折叠状态，用于 reset fold
     fold,
     foldBtnWidth,
     textContent,
@@ -286,18 +293,24 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
   ]);
 
   // 重置状态
-  const resetState = useCallback((newEllipsis = runtime.ellipsis) => {
-    const {ellipsis, fold: preFold} = runtime;
+  const resetState = useCallback((newEllipsis = runtime.ellipsis, {
+    forceResetFold = false, // 强制重置fold 比如child变化时
+  } = {}) => {
+    const {ellipsis, fold: preFold, defaultFold} = runtime;
     if (newEllipsis !== ellipsis) {
       setEllipsis(newEllipsis);
       runtime.ellipsis = newEllipsis;
       runtime.onEllipsisChange?.(newEllipsis);
-      // 从未截断状态切换为截断状态时，自动折叠（即：出现展开按钮）
-      if (newEllipsis && !preFold) {
-        handleFoldChange(undefined, true);
-      }
     }
-  }, [handleFoldChange]);
+    // 从未截断状态切换为截断状态时，自动折叠（即：出现展开按钮）
+    if (
+      resetFoldWhenChildrenOrEllipsisChange
+      && (forceResetFold  || !ellipsis && newEllipsis)
+      && preFold !== defaultFold
+    ) {
+      handleFoldChange(undefined, defaultFold);
+    }
+  }, [handleFoldChange, finalContent, resetFoldWhenChildrenOrEllipsisChange]);
 
   const calcEllipsis = useCallback(() => {
     const wrapDom = wrapperRef.current;
@@ -348,12 +361,14 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
         resetState(false);
       }
     }
-  }, [lines, innerLineHeight, finalContent, resetState]);
+  }, [lines, innerLineHeight, resetState]);
 
   // 监听内容高度，是否需要折叠
   // 用useLayoutEffect方式闪屏显示
   useCompatibleEffect(() => {
-    resetState();
+    resetState(runtime.ellipsis, {
+      forceResetFold: true,
+    });
     calcEllipsis();
   }, [calcEllipsis, resetState]);
 
