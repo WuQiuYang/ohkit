@@ -204,11 +204,14 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
   // 容器样式
   const wrapStyle = useMemo(() => {
     const lines = innerLines;
+    const commonStyle = {
+      whiteSpace
+    }; 
     if (!ellipsis || !lines || !innerLineHeight) {
-      return;
+      return commonStyle;
     }
     return {
-      whiteSpace,
+      ...commonStyle,
       // HACK: 兼容safari 15+ 富文本折叠高度丢失问题
       minHeight: fold ? `${(lines - 0.2) * innerLineHeight}px` : undefined,
       WebkitLineClamp: fold ? lines : undefined, // 利用-webkit-line-clamp截断方案
