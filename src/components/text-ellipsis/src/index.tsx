@@ -108,6 +108,11 @@ interface ITextEllipsis
    */
   whiteSpace?: React.CSSProperties['whiteSpace'];
   /**
+   * 容器宽度（默认自适应内容）
+   * 应用场景：whiteSpace='pre*' 时，支持展示换行符，自适应内容可能导致控制按钮位置不确定
+   */
+  width?: React.CSSProperties['width'];
+  /**
    * 自定义渲染展开按钮
    */
   renderFoldButton?: (fold: boolean) => React.ReactNode;
@@ -149,6 +154,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     uiType = "right",
     controlPlacement = 'center',
     whiteSpace,
+    width,
     renderFoldButton,
     onEllipsisChange,
     onFoldChange,
@@ -201,17 +207,20 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     };
   }, [lineHeight, getLineHeightFail]);
 
+  const commonWrapStyle = useMemo(() => {
+    return {
+      whiteSpace,
+      width,
+    };
+  }, [whiteSpace, width])
   // 容器样式
   const wrapStyle = useMemo(() => {
     const lines = innerLines;
-    const commonStyle = {
-      whiteSpace
-    }; 
     if (!ellipsis || !lines || !innerLineHeight) {
-      return commonStyle;
+      return commonWrapStyle;
     }
     return {
-      ...commonStyle,
+      ...commonWrapStyle,
       // HACK: 兼容safari 15+ 富文本折叠高度丢失问题
       minHeight: fold ? `${(lines - 0.2) * innerLineHeight}px` : undefined,
       WebkitLineClamp: fold ? lines : undefined, // 利用-webkit-line-clamp截断方案
@@ -221,7 +230,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
       paddingBottom:
         uiType === "bottom" || !fold ? `${innerLineHeight}px` : undefined,
     };
-  }, [innerLines, innerLineHeight, ellipsis, fold, uiType, whiteSpace]);
+  }, [innerLines, innerLineHeight, ellipsis, fold, uiType, commonWrapStyle]);
 
   // 展开｜收起 按钮样式
   const btnStyle = useMemo(() => {
@@ -440,7 +449,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
           if (height !== undefined && Math.abs(height - runtime.contentOffsetHeight) > 1) {
             calcEllipsis();
           }
-          return <div style={{whiteSpace}} className={"offset-height-computer"} ref={(r) => {
+          return <div style={commonWrapStyle} className={"content-shadow-dom"} ref={(r) => {
             assignRef(measureRef, r);
             assignRef(wrapperRef, r);
             updateTextContent();
@@ -449,7 +458,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
           </div>
         }}
       </Measure>
-      {/* <div className={"offset-height-computer"} ref={wrapperRef}>
+      {/* <div className={"content-shadow-dom"} ref={wrapperRef}>
           {finalContent}
       </div> */}
       {/* 主文本显示 */}

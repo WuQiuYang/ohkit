@@ -15,7 +15,7 @@ $prefix: global.$comp-prefix;
     position: relative;
 
     // 保留dom用于计算高度, 不影响视图
-    .offset-height-computer {
+    .content-shadow-dom {
       visibility: hidden;
       position: absolute;
       pointer-events: none;
