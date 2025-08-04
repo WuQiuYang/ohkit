@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/text-ellipsis",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "text ellipsis for react",
   "keywords": [
     "text ellipsis"
