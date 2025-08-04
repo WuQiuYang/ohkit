@@ -41,7 +41,7 @@ function Demo() {
 | className | 自定义样式类名，会附加到根元素上 | string | - |
 | lines | 超过几行折叠 (number > 0) | number | - |
 | uiType | 展开按钮位置 `right`(右下侧) 或 `bottom`(底部) | string | `right` |
-| lineHeight | 行高(单位:px) | number/string | - |
+| lineHeight | 行高(支持px/em等单位或数字) | number/string | - |
 | content | 文本内容 | ReactNode | - |
 | fold | 是否折叠 | boolean | `true` |
 | showFoldControl | 是否显示展开控制按钮 | boolean | `true` |
@@ -49,6 +49,11 @@ function Demo() {
 | unfoldText | 展开状态按钮文字 | string | `展开` |
 | maskBgColor | 展开按钮蒙层背景色(16进制) | string | `#fff` |
 | showTitleWhenFold | 折叠状态下是否显示title属性 | boolean | `false` |
+| titleWhenFold | 自定义折叠状态下的title内容 | string \| (title: string) => string | - |
+| resetFoldWhenChildrenOrEllipsisChange | 当内容变化时重置折叠状态 | boolean | `false` |
+| controlPlacement | 底部按钮对齐方式 `left`/`center`/`right` | string | `center` |
+| whiteSpace | 是否保留换行符 | CSSProperties['whiteSpace'] | - |
+| width | 容器宽度（默认自适应） | CSSProperties['width'] | - |
 | renderFoldButton | 自定义渲染展开按钮 | (fold: boolean) => ReactNode | - |
 
 ### 事件
@@ -83,3 +88,4 @@ function Demo() {
 1. Safari浏览器下富文本截断可能有轻微高度计算偏差
 2. 图片和表格等复杂内容可能无法完美截断
 3. 动态内容变化后会自动重新计算截断状态
+4. 使用`whiteSpace`保留换行符时建议设置`width`属性
