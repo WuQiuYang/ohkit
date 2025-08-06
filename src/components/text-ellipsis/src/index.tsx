@@ -257,12 +257,15 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
   }, [innerLineHeight, maskBgColor, fold, uiType, foldBtnWidth]);
 
   const reorganizeDom = useCallback(() => {
-    // safari 中仅改变 WebkitLineClamp 没触发重排，调整微小宽度以触发
+    // Note: safari 中仅改变 WebkitLineClamp 没触发重排，调整微小宽度以触发
     if (contentRef.current) {
-      contentRef.current.style.width = "99.999%";
+      const orginStyleWidth = contentRef.current.style.width;
+      const orginWidth = window.getComputedStyle(contentRef.current).width;
+      // console.log('orginWidth, orginStyleWidth:', orginWidth, orginStyleWidth);
+      contentRef.current.style.width = `${parseFloat(orginWidth) - 0.1}px`;
       window.requestAnimationFrame?.(() => {
         if (contentRef.current) {
-          contentRef.current.style.width = "100%";
+          contentRef.current.style.width = orginStyleWidth;
         }
       });
     }
@@ -366,8 +369,9 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
       if (innerLines !== lines) {
         setInnerLines(lines);
       }
-      // 允许误差1px（行高为小数时）
-      if (runtime.contentOffsetHeight >= (lines + 1) * realLineHeight - 1) {
+      // console.log('contentOffsetHeight, realLineHeight', runtime.contentOffsetHeight, realLineHeight);
+      // 允许误差1px（行高为小数时, safari计算行高*行数和实践总高有差异，故将行高向下取整兼容）
+      if (runtime.contentOffsetHeight >= (lines + 1) * Math.floor(realLineHeight) - 1) {
         resetState(true);
       } else {
         resetState(false);
