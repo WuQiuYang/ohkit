@@ -88,7 +88,7 @@ export class PromisePipe {
         fun: PromiseTask<T>,
         opt?: {
             /**
-             * 是否需要等待所有任务执行完成后再返回
+             * 是否需要等待所有任务执行完成后再 resolve
              * @default false
              */
             returnWaitAll?: WaitAll;
@@ -103,9 +103,11 @@ export class PromisePipe {
         const {fireImmediately = true, returnWaitAll = false} = opt || {};
         return new Promise((resolve) => {
             this.promiseCallbackMap.set(fun, ({isEnd, task, res}) => {
-                if (returnWaitAll && isEnd) {
-                    this.promiseCallbackMap.delete(fun);
-                    resolve(res as WaitAll extends true ? unknown : T);
+                if (returnWaitAll) {
+                    if (isEnd) {
+                        this.promiseCallbackMap.delete(fun);
+                        resolve(res as WaitAll extends true ? unknown : T);
+                    }
                 } else if (fun === task) {
                     this.promiseCallbackMap.delete(fun);
                     resolve(res as T);
