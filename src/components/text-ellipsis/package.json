@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/text-ellipsis",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "text ellipsis for react",
   "keywords": [
     "text ellipsis"
@@ -32,7 +32,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ohkit/measure": "0.0.3-alpha.0",
+    "@ohkit/measure": "0.0.3",
     "@ohkit/utils": "0.0.3"
   },
   "devDependencies": {

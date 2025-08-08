@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/measure",
-  "version": "0.0.3-alpha.0",
+  "version": "0.0.3",
   "description": "可观测dom尺寸变化的高阶容器组件",
   "keywords": [
     "measure",
