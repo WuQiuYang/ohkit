@@ -26,12 +26,15 @@ export const Default: Story = {
       return (
         <div>
           <h3>{'调整窗口大小查看效果：'}</h3>
-          <div ref={measureRef} style={{ backgroundColor: 'red' }}>{text}</div>
+          <div ref={measureRef} style={{backgroundColor: 'red', margin: 10, padding: 20, border: '2px solid'}}>{text}</div>
           <div>{`client size  =>  width: ${width}px, height: ${height}px, top: ${top}px, left: ${left}px`}</div>
           <div>{`offset size  =>  width: ${offsetWidth}px, height: ${offsetHeight}px, top: ${offsetTop}px, left: ${offsetLeft}px`}</div>
           <div>{`bounds size  =>  width: ${boundsWidth}px, height: ${boundsHeight}px, top: ${boundsTop}px, left: ${boundsLeft}px, right: ${right}px bottom: ${bottom}px`}</div>
         </div>
       );
+    },
+    onResize(contentRect) {
+      console.log("contentRect 变化:", contentRect);
     },
   },
 };
@@ -164,6 +167,9 @@ export const Margin: Story = {
           <div>{`margin size  => top: ${top}px, left: ${left}px, bottom: ${bottom}px, right: ${right}px`}</div>
         </div>
       );
+    },
+    onResize(contentRect) {
+      console.log("margin 变化:", contentRect.margin);
     },
   },
 };

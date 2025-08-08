@@ -59,6 +59,9 @@ function findScrollContainer(element: HTMLElement, {includeSelf = false} = {}) {
 
 export interface WithContentRectProps extends IGetContentRectOptions {
     innerRef?: {current: HTMLElement | null} | ((instance: HTMLElement | null) => void);
+    /**
+     * 当观测的内容尺寸发生变化时，会触发此回调函数。
+     */
     onResize?: (contentRect: IContentRect) => void;
     /**
      * throttleMs ms 内只触发一次 resize 事件，防止高频触发 resize 事件导致性能问题

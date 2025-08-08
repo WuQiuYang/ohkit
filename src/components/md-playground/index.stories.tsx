@@ -14,7 +14,7 @@ export const Default: Story = {
   args: {
     // theme: 'materialDark',
     children:
-    '## Markdown渲染\n``` typescript' +
+    '## Markdown渲染\n- 无序~~列~~表1\n- 无序**列表**2\n``` typescript' +
 `
   import React from 'react';
   // import { Button } from 'antd';
