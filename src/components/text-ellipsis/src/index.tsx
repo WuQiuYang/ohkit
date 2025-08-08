@@ -15,15 +15,17 @@ import React, {
   MouseEvent,
 } from "react";
 import {
-  isSafari,
   prefixClassname as p,
   classNames as cx,
+} from "@ohkit/prefix-classname";
+import {
   assignRef,
   useRuntime,
   useCompatibleEffect,
   useSyncPropsState,
-} from "@ohkit/utils";
-import { Measure } from "@ohkit/measure";
+} from "@ohkit/react-helper";
+import {isSafari} from "@ohkit/platform";
+import {Measure} from "@ohkit/measure";
 import "./style.scss";
 
 export const c = p("ohkit-text-ellipsis__");

@@ -32,8 +32,10 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ohkit/measure": "0.0.3",
-    "@ohkit/utils": "0.0.3"
+    "@ohkit/measure": "^0.0.3",
+    "@ohkit/platform": "^0.0.3-alpha.0",
+    "@ohkit/prefix-classname": "^0.0.3-alpha.0",
+    "@ohkit/react-helper": "^0.0.3"
   },
   "devDependencies": {
     "react": "^18.3.1",
