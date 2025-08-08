@@ -14,7 +14,6 @@ import React, {
   PropsWithChildren,
   MouseEvent,
 } from "react";
-import "./style.scss";
 import {
   isSafari,
   prefixClassname as p,
@@ -25,6 +24,7 @@ import {
   useSyncPropsState,
 } from "@ohkit/utils";
 import { Measure } from "@ohkit/measure";
+import "./style.scss";
 
 export const c = p("ohkit-text-ellipsis__");
 
@@ -39,19 +39,35 @@ interface ITextEllipsis
     | "onClick"
   > {
   /**
+   * 自定义样式类名，会附加到根元素上
+   */
+  className?: string;
+  /**
+   * 自定义样式
+   */
+  style?: React.CSSProperties;
+  /**
    * right | bottom 展开按钮在右下侧还是底部
    * @default right
    */
   uiType?: "right" | "bottom";
   /**
-   * 自定义样式类名，会附加到根元素上
+   * 截断模式 (若某些浏览器不支持 webkitLineClamp，可降级切换为 height 模式)
+   * @default line
    */
-  className?: string;
+  truncateMode?: "line" | "height";
+  /**
+   * truncateMode === "height" 时生效
+   * 最大高度(number > 0)，没传或者传入无效值不限制，尝试取 lines * lineHeight，若仍无效 自动截断到容器的最大高度
+   * 单位: px
+   */
+  maxHeight?: number;
   /**
    * （单位:px）未传入或无效（0也视为无效）则自动取当前文本的行高
    */
   lineHeight?: React.CSSProperties["lineHeight"];
   /**
+   * truncateMode === "line" 时生效
    * 超过几行折叠(number > 0), 没传或者传入无效值不限制，自动截断到容器的最大高度
    */
   lines?: number;
@@ -140,6 +156,7 @@ export type TextEllipsisProps = PropsWithChildren<ITextEllipsis>;
 export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props, ref) => {
   const {
     className,
+    style,
     lineHeight = "",
     lines,
     maskBgColor = "#fff",
@@ -152,6 +169,8 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     foldText = "收起",
     unfoldText = "展开",
     uiType = "right",
+    truncateMode = "line",
+    maxHeight,
     controlPlacement = 'center',
     whiteSpace,
     width,
@@ -184,7 +203,8 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
 
   const [runtime] = useRuntime({
     inited: false, // mounted
-    contentOffsetHeight: 0,
+    contentOffsetHeight: 0, // 内容节点offsetHeight
+    containerContentHeight: 0, // 容器内容高度 = 容器高 - 上下padding
     ellipsis,
     defaultFold: fold, // 记录一下默认的折叠状态，用于 reset fold
     fold,
@@ -204,8 +224,9 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
       lineHeight: getLineHeightFail // 未传入且获取 lineHeight(px) 失败，则设置 default lineHeight: 1.4(em)
         ? "1.4" // more brower normal default lineHeight
         : lineHeight ? lineHeight : undefined,
+      ...style,
     };
-  }, [lineHeight, getLineHeightFail]);
+  }, [style, lineHeight, getLineHeightFail]);
 
   const commonWrapStyle = useMemo(() => {
     return {
@@ -216,21 +237,24 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
   // 容器样式
   const wrapStyle = useMemo(() => {
     const lines = innerLines;
-    if (!ellipsis || !lines || !innerLineHeight) {
+    const isHeightMode = truncateMode === 'height';
+    if (!ellipsis || !isHeightMode && (!lines || !innerLineHeight)) {
       return commonWrapStyle;
     }
+    const paddingBottom = showFoldControl && (uiType === "bottom" || !fold) ? `${innerLineHeight}px` : undefined;
     return {
       ...commonWrapStyle,
       // HACK: 兼容safari 15+ 富文本折叠高度丢失问题
-      minHeight: fold ? `${(lines - 0.2) * innerLineHeight}px` : undefined,
-      WebkitLineClamp: fold ? lines : undefined, // 利用-webkit-line-clamp截断方案
-      // Note: safari 对WebkitLineClamp支持太差劲 判断浏览器优雅降级为高度截断方案
-      // WebkitLineClamp: isSafari ? undefined :  ellipsis && fold && lines, // 利用-webkit-line-clamp截断方案
-      // maxHeight: isSafari && ellipsis && fold ? lines * innerLineHeight : undefined,
-      paddingBottom:
-        uiType === "bottom" || !fold ? `${innerLineHeight}px` : undefined,
+      minHeight: !isHeightMode && fold ? `${(lines - 0.2) * innerLineHeight}px` : undefined,
+      // Note: safari 对WebkitLineClamp支持太差劲 判断浏览器优雅降级为高度截断方案？目前先交给用户去判断，自行选择truncateMode
+      // WebkitLineClamp: isSafari ? undefined : fold ? lines : undefined, // 利用-webkit-line-clamp截断方案
+      // maxHeight: isSafari && fold ? lines * innerLineHeight : undefined,
+      WebkitLineClamp: isHeightMode ? undefined : fold ? lines : undefined, // 利用-webkit-line-clamp截断方案
+      maxHeight: isHeightMode && fold ? (maxHeight || lines * innerLineHeight || runtime.containerContentHeight || 0) : undefined,
+      paddingBottom,
+      boxSizing: paddingBottom ? 'border-box' as const : undefined,
     };
-  }, [innerLines, innerLineHeight, ellipsis, fold, uiType, commonWrapStyle]);
+  }, [innerLines, innerLineHeight, ellipsis, fold, showFoldControl, uiType, truncateMode, maxHeight, commonWrapStyle]);
 
   // 展开｜收起 按钮样式
   const btnStyle = useMemo(() => {
@@ -334,12 +358,16 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
       return;
     }
     runtime.contentOffsetHeight = wrapDom.offsetHeight;
-    let realLineHeight = 0;
+    const containerStyle = window.getComputedStyle(containerDom);
+    const paddingTop = parseFloat(containerStyle.paddingTop);
+    const paddingBottom = parseFloat(containerStyle.paddingBottom);
+    const containerContentHeight = runtime.containerContentHeight = containerDom.clientHeight - paddingTop - paddingBottom;
 
+    // 计算真实行高
+    let realLineHeight = 0;
     // 若外部未传入, 尝试读取当前文本的行高。
     if (!realLineHeight && wrapDom) {
-      const realStyle = window.getComputedStyle?.(wrapDom);
-      const { lineHeight } = realStyle || {};
+      const {lineHeight} = containerStyle || {};
       if (lineHeight) {
         // 未设置行高的为 normal
         realLineHeight = parseFloat(lineHeight);
@@ -355,9 +383,18 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
         return;
       }
     }
+
+    const isHeightMode = truncateMode === 'height';
+    // 高度截断模式，比较简单 直接判断是否超出容器高度
+    if (isHeightMode) {
+      resetState(runtime.contentOffsetHeight > (maxHeight || containerContentHeight));
+      return;
+    }
+
+    // 行数截断模式，需要利用行高计算是否超出容器高度
     if (!lines) {
-      if (runtime.contentOffsetHeight > containerDom?.offsetHeight) {
-          const adjustLines = Math.floor(containerDom.offsetHeight / realLineHeight);
+      if (runtime.contentOffsetHeight > containerContentHeight) {
+          const adjustLines = Math.floor(containerContentHeight / realLineHeight) || 1;
           if (innerLines !== adjustLines) {
             setInnerLines(adjustLines);
           }
@@ -371,13 +408,9 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
       }
       // console.log('contentOffsetHeight, realLineHeight', runtime.contentOffsetHeight, realLineHeight);
       // 允许误差1px（行高为小数时, safari计算行高*行数和实践总高有差异，故将行高向下取整兼容）
-      if (runtime.contentOffsetHeight >= (lines + 1) * Math.floor(realLineHeight) - 1) {
-        resetState(true);
-      } else {
-        resetState(false);
-      }
+        resetState(runtime.contentOffsetHeight >= (lines + 1) * Math.floor(realLineHeight) - 1);
     }
-  }, [lines, innerLineHeight, resetState]);
+  }, [lines, innerLineHeight, truncateMode, maxHeight, resetState]);
 
   // 监听内容高度，是否需要折叠
   // 用useLayoutEffect方式闪屏显示
@@ -391,7 +424,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
   // 监听"展开"按钮宽度变化
   useEffect(() => {
     if (ellipsis && btnWrapperRef.current) {
-      const {offsetWidth, offsetHeight} = btnWrapperRef.current;
+      const {offsetWidth} = btnWrapperRef.current;
       if (offsetWidth !== runtime.foldBtnWidth) {
         runtime.foldBtnWidth = offsetWidth;
         setFoldBtnWidth(offsetWidth);
@@ -429,6 +462,10 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
   useEffect(() => {
     runtime.inited = true;
   }, []);
+  // 高度自适应，容器高度变化时重新计算高度(容器也需要包装Measure，TODO: 待开发 hooks -> useMeasure, 使得观测dom尺寸的方式更简洁)
+  // if (!maxHeight && !lines) {
+  //    calcEllipsis();
+  // }
   // console.log('[render TextEllipsis]: ellipsis fold wrapStyle: ', ellipsis, fold, wrapStyle);
   return (
     <div

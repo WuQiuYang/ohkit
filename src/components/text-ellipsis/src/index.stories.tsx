@@ -23,6 +23,22 @@ export const Right: Story = {
   }
 };
 
+/**
+ * 自适应容器高度截断
+ */
+export const RightAuto: Story = {
+  args: {
+    // lines: 1,
+    content: text,
+    // 未设置于truncateMode对应lines或maxHeight属性时，内容撑满容器，一般不显示展开/折叠按钮（展开溢出容器看不见)
+    showFoldControl: false,
+    style: {
+      height: 60,
+      backgroundColor: 'pink'
+    }
+  },
+};
+
 export const RightCustom: Story = {
   args: {
     lines: 2,
@@ -60,6 +76,35 @@ export const RichText: Story = {
     lines: 7,
     uiType: 'bottom',
     content: element,
+  }
+};
+
+export const RichTextHeightMode: Story = {
+  args: {
+    lines: 3,
+    maxHeight: 240,
+    truncateMode: 'height',
+    uiType: 'bottom',
+    content: element,
+  }
+};
+
+/**
+ * 自适应容器高度截断
+ */
+export const RichTextHeightModeAuto: Story = {
+  args: {
+    // lines: 7,
+    // maxHeight: 240,
+    truncateMode: 'height',
+    uiType: 'bottom',
+    content: element,
+    // 未设置于truncateMode对应lines或maxHeight属性时，内容撑满容器，一般不显示展开/折叠按钮（展开溢出容器看不见)
+    showFoldControl: false,
+    style: {
+      height: 220,
+      backgroundColor: 'pink'
+    }
   }
 };
 

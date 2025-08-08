@@ -39,9 +39,12 @@ function Demo() {
 | 参数 | 说明 | 类型 | 默认值 |
 |------|------|------|--------|
 | className | 自定义样式类名，会附加到根元素上 | string | - |
+| style | 自定义样式 | React.CSSProperties | - |
 | lines | 超过几行折叠 (number > 0) | number | - |
 | uiType | 展开按钮位置 `right`(右下侧) 或 `bottom`(底部) | string | `right` |
+| truncateMode | 截断模式 `line`(行数) 或 `height`(高度) | string | `line` |
 | lineHeight | 行高(支持px/em等单位或数字) | number/string | - |
+| maxHeight | 高度模式下的最大高度(px) | number | - |
 | content | 文本内容 | ReactNode | - |
 | fold | 是否折叠 | boolean | `true` |
 | showFoldControl | 是否显示展开控制按钮 | boolean | `true` |
@@ -85,7 +88,7 @@ function Demo() {
 ```
 
 ## 注意事项
-1. Safari浏览器下富文本截断可能有轻微高度计算偏差
-2. 图片和表格等复杂内容可能无法完美截断
+1. Safari浏览器下富文本截断可能有轻微高度计算偏差，可自行判断浏览器环境降级使用`height`截断模式
+2. 富文本中图片和表格等复杂内容可能无法完美截断
 3. 动态内容变化后会自动重新计算截断状态
 4. 使用`whiteSpace`保留换行符时建议设置`width`属性

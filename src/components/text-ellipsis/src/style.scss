@@ -12,6 +12,8 @@ $prefix: global.$comp-prefix;
 .#{$prefix}-text-ellipsis__ {
   &container {
     display: flex; // INFO: 这里必须非block, safari 13.1.3版本有bug 折叠切换时节点高度未更新
+    align-items: flex-start; // 配合flex食用，否则内部 display: -webkit-box 截断不生效
+    overflow: hidden; // 避免 .content-shadow-dom 溢出父容器导致外部滚动条视觉展示异常
     position: relative;
 
     // 保留dom用于计算高度, 不影响视图
