@@ -1,0 +1,29 @@
+import type { Meta, StoryObj } from '@storybook/react';
+// import {useState, useEffect} from 'react';
+
+import { {{properCase name}} } from './{{name}}';
+
+interface {{properCase name}}Props {
+    // todo add
+}
+const {{properCase name}}Demo = (props: Partial<{{properCase name}}Props>) => {
+  const {} = props;
+  return <div>
+    {{properCase name}}Demo
+  </div>;
+}
+
+const meta = {
+  component: {{properCase name}}Demo,
+  tags: ['autodocs'],
+} satisfies Meta<typeof {{properCase name}}Demo>;
+
+export default meta;
+
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {
+  args: {
+    // add props
+  },
+};

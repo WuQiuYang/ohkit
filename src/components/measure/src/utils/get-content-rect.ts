@@ -3,11 +3,29 @@ import {pick} from 'lodash-es';
 export type Direction = 'bottom' | 'left' | 'right' | 'top';
 
 export interface IGetContentRectOptions {
+    /**
+     * Element.clientXXX 等
+     */
     client?: boolean;
+    /**
+     * Element.offsetXXX 等
+     */
     offset?: boolean | Direction[];
+    /**
+     * scrollTop scrollLeft scrollWidth 等
+     */
     scroll?: boolean;
+    /**
+     * 返回元素的大小和在视口中的位置和尺寸，与 getBoundingClientRect 返回的结果类似
+     */
     bounds?: boolean;
+    /**
+     * margin 信息测量
+     */
     margin?: boolean;
+    /**
+     * 返回元素的大小和在视口中的位置  "bottom" | "left" | "right" | "top"，即 getBoundingClientRect 返回的位置结果
+     */
     position?: boolean | Direction[];
 }
 
@@ -71,31 +89,31 @@ export function getContentRect(node: HTMLElement, props: IGetContentRectOptions 
         };
     }
 
-    if (props.bounds) {
+    if (props.bounds || props.position) {
         const rect = node.getBoundingClientRect();
-        calculations.bounds = {
-            top: rect.top,
-            right: rect.right,
-            bottom: rect.bottom,
-            left: rect.left,
-            width: rect.width,
-            height: rect.height
-        };
-    }
-
-    if (props.position) {
-        const rect = node.getBoundingClientRect();
-        calculations.position = {
-            top: rect.top,
-            right: rect.right,
-            bottom: rect.bottom,
-            left: rect.left
+        if (props.position) {
+            calculations.position = {
+                top: rect.top,
+                right: rect.right,
+                bottom: rect.bottom,
+                left: rect.left
+            }
+            if (Array.isArray(props.position)) {
+                calculations.position = pick(
+                    calculations.position,
+                    props.position
+                );
+            }
         }
-        if (Array.isArray(props.position)) {
-            calculations.position = pick(
-                calculations.position,
-                props.position
-            );
+        if (props.bounds) {
+            calculations.bounds = {
+                top: rect.top,
+                right: rect.right,
+                bottom: rect.bottom,
+                left: rect.left,
+                width: rect.width,
+                height: rect.height
+            };
         }
     }
 

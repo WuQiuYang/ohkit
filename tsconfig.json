@@ -34,10 +34,9 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/components/measure/__tests__/data.js"
   ],
   "exclude": [
     "**/node_modules/**",
-    "__tests__"
+    "**/__tests__/**"
   ]
 }

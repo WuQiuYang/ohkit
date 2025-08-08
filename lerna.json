@@ -4,6 +4,7 @@
   "version": "independent",
   "packages": [
     "src/components/*",
+    "src/utils/packages/*",
     "src/utils",
     "./"
   ],

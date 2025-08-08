@@ -1,0 +1,29 @@
+{
+  "name": "@ohkit/async",
+  "version": "0.0.3",
+  "description": "some async utils",
+  "keywords": [
+    "async"
+  ],
+  "homepage": "",
+  "license": "ISC",
+  "source": "src/index.@(js|jsx|mjs|ts|tsx)",
+  "main": "dist/index.js",
+  "umd:main": "dist/index.umd.js",
+  "module": "dist/index.es.js",
+  "types": "dist/types/index.d.ts",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WuQiuYang/ohkit"
+  },
+  "scripts": {
+    "build": "npm run clean && microbundle --jsx React.createElement",
+    "dev": "npm run watch",
+    "watch": "microbundle watch --jsx React.createElement --no-compress --format es --output dist/index.es.js",
+    "clean": "rm -rf dist"
+  }
+}

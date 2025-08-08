@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/utils",
-  "version": "0.0.1-beta.0",
+  "version": "0.0.4",
   "description": "some utils",
   "keywords": [
     "@ohkit",
@@ -12,17 +12,19 @@
   "source": "src/index.@(js|jsx|mjs|ts|tsx)",
   "main": "dist/index.js",
   "umd:main": "dist/index.umd.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "module": "dist/index.es.js",
+  "types": "dist/types/index.d.ts",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
   },
-  "files": [
-    "lib"
-  ],
   "publishConfig": {
-    "registry": "https://registry.npmmirror.com/"
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WuQiuYang/ohkit"
   },
   "scripts": {
     "build": "npm run clean && microbundle --jsx React.createElement",
@@ -31,15 +33,13 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "classnames": "^2.5.1"
+    "@ohkit/async": "0.0.3",
+    "@ohkit/auto-reporter": "0.0.3",
+    "@ohkit/debug": "0.0.3",
+    "@ohkit/json-helper": "0.0.3",
+    "@ohkit/platform": "0.0.3",
+    "@ohkit/prefix-classname": "0.0.3",
+    "@ohkit/react-helper": "0.0.4"
   },
-  "devDependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  },
-  "peerDependencies": {
-    "react": ">=16.8.0",
-    "react-dom": ">=16.8.0",
-    "lodash-es": "^4.17.21"
-  }
+  "gitHead": "3d62d95c06d9a8e0e52d68c924960e3b48d82238"
 }
