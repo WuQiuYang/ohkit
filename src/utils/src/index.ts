@@ -6,4 +6,5 @@ export * from '@ohkit/prefix-classname';
 // export * from '@ohkit/sse';
 export * from '@ohkit/json-helper';
 export * from '@ohkit/debug';
+export * from '@ohkit/dom-helper';
 /* plop.append:UTILS_EXPORT */
