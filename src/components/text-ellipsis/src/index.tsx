@@ -25,6 +25,7 @@ import {
   useSyncPropsState,
 } from "@ohkit/react-helper";
 import {isSafari} from "@ohkit/platform";
+import {rgbaToObj, findEffectiveBgColor} from "@ohkit/dom-helper";
 import {Measure} from "@ohkit/measure";
 import "./style.scss";
 
@@ -103,7 +104,7 @@ interface ITextEllipsis
    */
   controlPlacement?: 'left' | 'center' | 'right';
   /**
-   * 展开按钮文字
+   * 折叠按钮文字
    * @default 收起
    */
   foldText?: string;
@@ -161,7 +162,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     style,
     lineHeight = "",
     lines,
-    maskBgColor = "#fff",
+    maskBgColor,
     content,
     children,
     resetFoldWhenChildrenOrEllipsisChange = false,
@@ -235,7 +236,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
       whiteSpace,
       width,
     };
-  }, [whiteSpace, width])
+  }, [whiteSpace, width]);
   // 容器样式
   const wrapStyle = useMemo(() => {
     const lines = innerLines;
@@ -243,7 +244,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     if (!ellipsis || !isHeightMode && (!lines || !innerLineHeight)) {
       return commonWrapStyle;
     }
-    const paddingBottom = showFoldControl && (uiType === "bottom" || !fold) ? `${innerLineHeight}px` : undefined;
+    const paddingBottom = showFoldControl && (uiType === "bottom" && !fold) ? `${innerLineHeight}px` : undefined;
     return {
       ...commonWrapStyle,
       // HACK: 兼容safari 15+ 富文本折叠高度丢失问题
@@ -258,6 +259,18 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     };
   }, [innerLines, innerLineHeight, ellipsis, fold, showFoldControl, uiType, truncateMode, maxHeight, commonWrapStyle]);
 
+  // 计算折叠按钮蒙层的渐变颜色
+  const validMaskBgColor = useMemo(() => {
+    if (!showFoldControl || !ellipsis) {
+      return null;
+    }
+    const {r, g, b} = rgbaToObj(maskBgColor || '') || findEffectiveBgColor(containerRef.current);
+    return {
+      startColor: `rgba(${r}, ${g}, ${b}, 0.2)`,
+      endColor: `rgba(${r}, ${g}, ${b}, 1)`,
+    };
+  }, [maskBgColor, ellipsis, showFoldControl]);
+
   // 展开｜收起 按钮样式
   const btnStyle = useMemo(() => {
     if (!fold) {
@@ -267,10 +280,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     const padding = innerLineHeight;
     // 蒙层透明度所占比例
     const ratio = uiType === "right" ? Math.min((padding / foldBtnWidth) * 100, 80) : 60;
-    // 16进制透明色(考虑简写方式), 不直接使用css的transparent是因为safari的表现是灰色
-    const transparent = `${maskBgColor}${
-      maskBgColor.length === 4 ? "0" : "00"
-    }`;
+    const {startColor = 'rgba(255,255,255,0.2)', endColor = 'rgba(255,255,255,1)'} = validMaskBgColor || {};
     return {
       boxSizing: 'content-box' as const,
       height: `${innerLineHeight}px`,
@@ -278,9 +288,9 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
       paddingTop: uiType === "bottom" ? `${padding}px` : undefined,
       paddingLeft: uiType === "right" ? `${padding}px` : undefined,
       // 渐变蒙层
-      background: `linear-gradient(to ${uiType}, ${transparent}, ${maskBgColor} ${ratio}%, ${maskBgColor} 100%)`,
+      background: `linear-gradient(to ${uiType}, ${startColor}, ${endColor} ${ratio}%, ${endColor} 100%)`,
     };
-  }, [innerLineHeight, maskBgColor, fold, uiType, foldBtnWidth]);
+  }, [innerLineHeight, fold, uiType, foldBtnWidth, validMaskBgColor]);
 
   const reorganizeDom = useCallback(() => {
     // Note: safari 中仅改变 WebkitLineClamp 没触发重排，调整微小宽度以触发
@@ -332,6 +342,16 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     uiType,
     unfoldText,
   ]);
+
+  // 占位按钮
+  const ButtonShadowDom = useMemo(() => {
+    if (!showFoldControl || uiType !== 'right' || fold) {
+      return null;
+    }
+    return <span style={btnStyle} className="btn-fold-right-shadow">
+      {renderFoldButton ? renderFoldButton(fold) : foldText}
+    </span>;
+  }, [uiType, showFoldControl, fold, btnStyle, foldText, renderFoldButton]);
 
   // 重置状态
   const resetState = useCallback((newEllipsis = runtime.ellipsis, {
@@ -515,6 +535,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
         {/* firefox >= 133 绝对定位的按钮放文本后面也会被截断隐藏！！ , 放文本前面可解决 */}
         {ellipsis && showFoldControl && ButtonComp}
         {finalContent}
+        {ButtonShadowDom}
       </div>
     </div>
   );

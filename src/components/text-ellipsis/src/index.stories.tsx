@@ -56,7 +56,7 @@ export const RightCustom: Story = {
       >
         自定义{fold ? '展开' : '收起'}
       </Button>;
-    }
+    },
   }
 };
 
@@ -127,15 +127,17 @@ export const CustomWithTooltip: Story = {
       }
     }, []);
     return (
-      <Tooltip
-        title={<div style={{maxHeight: 350, overflowY: 'auto'}}>{title}</div>}
-        open={visible}
-        onOpenChange={title ? handleVisibleChange : undefined}
-        placement='bottomRight'
-        mouseEnterDelay={0.3}
-      >
-        <TextEllipsis {...args} onStatusChange={handleStatusChange} />
-      </Tooltip>
+      <div style={{backgroundColor: 'rgba(244, 189, 141, 0.5)'}}>
+        <Tooltip
+          title={<div style={{maxHeight: 350, overflowY: 'auto'}}>{title}</div>}
+          open={visible}
+          onOpenChange={title ? handleVisibleChange : undefined}
+          placement='bottomRight'
+          mouseEnterDelay={0.3}
+        >
+          <TextEllipsis {...args} onStatusChange={handleStatusChange} />
+        </Tooltip>
+      </div>
     )
   },
   args: {
@@ -149,6 +151,9 @@ export const CustomWithTooltip: Story = {
     onEllipsisChange: (ellipsis) => {
       console.log('触发了 onEllipsisChange 回调 ellipsis', ellipsis);
     },
+    style: {
+      backgroundColor: 'rgba(57, 148, 167, 0.3)'
+    }
   }
 };
 

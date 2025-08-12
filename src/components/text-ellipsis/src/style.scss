@@ -32,6 +32,13 @@ $prefix: global.$comp-prefix;
       -webkit-box-orient: vertical;
       @include text-ellipsis-break();
 
+      // 右侧折叠按钮占位
+      .btn-fold-right-shadow {
+        visibility: hidden;
+        pointer-events: none;
+        user-select: none;
+        padding-left: 12px;
+      }
 
       .btn-fold-wrapper {
         position: absolute;
@@ -49,7 +56,7 @@ $prefix: global.$comp-prefix;
         // 展开按钮在右侧
         &-right {
           right: 0;
-          padding-left: 24px;
+          padding-left: 12px;
         }
         // 展开按钮在底部（蒙层模式）
         &-bottom {
