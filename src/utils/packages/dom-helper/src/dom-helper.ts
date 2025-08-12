@@ -6,7 +6,7 @@ import {mixRgbaToRgbWithXbg, rgbaToObj, IRgb} from './color';
  * @param dom 需要获取背景颜色的 DOM 元素，如果为 null 则返回白色背景
  * @returns 包含背景颜色 RGBA 值的对象，若无法获取到有效背景颜色则返回白色背景（rgba(255, 255, 255, 1)）
  */
-function findEffectiveBgColor(dom: HTMLElement | null) {
+export function findEffectiveBgColor(dom: HTMLElement | null) {
   let node = dom;
   // 有透明度的图层
   const rgbaBgList = [];
