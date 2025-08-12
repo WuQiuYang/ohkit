@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/auto-reporter",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "数据变更上报控制器",
   "keywords": [
     "auto-reporter"

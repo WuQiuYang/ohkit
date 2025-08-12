@@ -1,8 +1,10 @@
 {
   "name": "@ohkit/dom-helper",
-  "version": "0.0.1-beta.0",
+  "version": "0.0.1",
   "description": "html dom 操作相关工具函数",
-  "keywords": ["dom-helper"],
+  "keywords": [
+    "dom-helper"
+  ],
   "homepage": "",
   "license": "ISC",
   "source": "src/index.@(js|jsx|mjs|ts|tsx)",
@@ -23,11 +25,5 @@
     "dev": "npm run watch",
     "watch": "microbundle watch --jsx React.createElement --no-compress --format es --output dist/index.es.js",
     "clean": "rm -rf dist"
-  },
-  "dependencies": {
-  },
-  "devDependencies": {
-  },
-  "peerDependencies": {
   }
 }
