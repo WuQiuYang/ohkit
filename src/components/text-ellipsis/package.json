@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/text-ellipsis",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "text ellipsis for react",
   "keywords": [
     "text ellipsis"
@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@ohkit/dom-helper": "0.0.1",
-    "@ohkit/measure": "0.0.4",
+    "@ohkit/measure": "0.0.5",
     "@ohkit/platform": "0.0.3",
     "@ohkit/prefix-classname": "0.0.3",
     "@ohkit/react-helper": "0.0.4"
