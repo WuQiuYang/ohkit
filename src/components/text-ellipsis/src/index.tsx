@@ -26,7 +26,7 @@ import {
 } from "@ohkit/react-helper";
 import {isSafari} from "@ohkit/platform";
 import {rgbaToObj, findEffectiveBgColor} from "@ohkit/dom-helper";
-import {Measure} from "@ohkit/measure";
+import {Measure, MeasureProps} from "@ohkit/measure";
 import "./style.scss";
 
 export const c = p("ohkit-text-ellipsis__");
@@ -215,7 +215,8 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     textContent,
     onEllipsisChange,
     onFoldChange,
-  }, ['onEllipsisChange', 'fold', 'onFoldChange']);
+    onStatusChange,
+  }, ['fold', 'onEllipsisChange', 'onFoldChange', 'onStatusChange']);
 
   const contentRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -459,12 +460,22 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     }
   }, [fold, reorganizeDom]);
   const updateTextContent = useCallback(() => {
-    const newTextContent = wrapperRef.current?.textContent || '';
+    if (!wrapperRef.current) {
+      return;
+    }
+    const newTextContent = wrapperRef.current.textContent || '';
     if (newTextContent !== runtime.textContent) {
       runtime.textContent = newTextContent;
       setTextContent(newTextContent);
     }
   }, []);
+  const handleResize = useCallback<NonNullable<MeasureProps['onResize']>>((rect) => {
+    // console.log('[handleResize] rect: ', rect, runtime.contentOffsetHeight);
+    const {height} = rect.offset || {};
+    if (height !== undefined && Math.abs(height - runtime.contentOffsetHeight) > 1) {
+      calcEllipsis();
+    }
+  }, [calcEllipsis]);
   const hoverTitle = useMemo(() => {
       return ellipsis && fold
         ? (typeof titleWhenFold === 'function'
@@ -474,13 +485,13 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
   }, [titleWhenFold, ellipsis, fold, textContent]);
   useEffect(() => {
     if (runtime.inited) {      
-      onStatusChange?.({
+      runtime.onStatusChange?.({
           ellipsis,
           fold,
           title: hoverTitle
       });
     }
-  }, [onStatusChange, fold, ellipsis, hoverTitle]);
+  }, [fold, ellipsis, hoverTitle]);
   useEffect(() => {
     runtime.inited = true;
   }, []);
@@ -505,13 +516,13 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
       onFocus={onFocus}
     >
       {/* 此dom仅用于计算高度 用.text-ellipsis-inner计算 在不重新初始化情况下切换文本时高度计算有问题 */}
-      <Measure offset>
-        {({measureRef, contentRect}) => {
-          // console.log('contentRect:', contentRect.offset?.height, runtime.contentOffsetHeight);
-          const {height} = contentRect.offset || {};
-          if (height !== undefined && Math.abs(height - runtime.contentOffsetHeight) > 1) {
-            calcEllipsis();
-          }
+      <Measure offset throttleMs={100} onResize={handleResize} triggerResizeInit={false}>
+        {({measureRef, /* contentRect */}) => {
+          // console.log('contentRect:', contentRect, contentRect.offset?.height, runtime.contentOffsetHeight);
+          // const {height} = contentRect.offset || {};
+          // if (height !== undefined && Math.abs(height - runtime.contentOffsetHeight) > 1) {
+          //   calcEllipsis();
+          // }
           return <div style={commonWrapStyle} className={"content-shadow-dom"} ref={(r) => {
             assignRef(measureRef, r);
             assignRef(wrapperRef, r);
@@ -521,7 +532,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
           </div>
         }}
       </Measure>
-      {/* <div className={"content-shadow-dom"} ref={wrapperRef}>
+      {/* <div style={commonWrapStyle} className={"content-shadow-dom"} ref={wrapperRef}>
           {finalContent}
       </div> */}
       {/* 主文本显示 */}

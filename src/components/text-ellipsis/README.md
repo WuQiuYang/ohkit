@@ -50,7 +50,7 @@ function Demo() {
 | showFoldControl | 是否显示展开控制按钮 | boolean | `true` |
 | foldText | 折叠状态按钮文字 | string | `收起` |
 | unfoldText | 展开状态按钮文字 | string | `展开` |
-| maskBgColor | 展开按钮蒙层背景色(16进制) | string | `#fff` |
+| maskBgColor | 展开按钮蒙层背景色(16进制或rgb(a))，默认自动获取计算当前组件所在层级的背景色 | string | - |
 | showTitleWhenFold | 折叠状态下是否显示title属性 | boolean | `false` |
 | titleWhenFold | 自定义折叠状态下的title内容 | string \| (title: string) => string | - |
 | resetFoldWhenChildrenOrEllipsisChange | 当内容变化时重置折叠状态 | boolean | `false` |
