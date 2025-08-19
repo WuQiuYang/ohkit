@@ -52,6 +52,7 @@ function Example() {
 | bounds | 是否测量边界位置 | boolean | false |
 | position | 是否测量相对位置与bounds相比少了宽高 | boolean | false |
 | margin | 是否测量margin | boolean | false |
+| triggerResizeInit | 是否在组件挂载时立即触发一次resize事件 | boolean | true |
 
 ### 测量参数
 
