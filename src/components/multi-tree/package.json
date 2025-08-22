@@ -1,0 +1,46 @@
+{
+  "name": "@ohkit/multi-tree",
+  "version": "0.0.1-beta.0",
+  "description": "横向多根节点双枝树、多条双枝树组合、对单枝树也兼容",
+  "keywords": [
+    "multi-tree",
+    "horizontal tree",
+    "double branch tree",
+    "multi root horizontal double branch tree",
+    "横向树",
+    "多根节点树",
+    "双枝树"
+  ],
+  "homepage": "",
+  "license": "ISC",
+  "source": "src/index.@(js|jsx|mjs|ts|tsx)",
+  "main": "dist/index.js",
+  "umd:main": "dist/index.umd.js",
+  "module": "dist/index.es.js",
+  "types": "dist/types/index.d.ts",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WuQiuYang/ohkit"
+  },
+  "scripts": {
+    "build": "npm run clean && microbundle --jsx React.createElement",
+    "dev": "npm run watch",
+    "watch": "microbundle watch --jsx React.createElement --no-compress --format es --output dist/index.es.js",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@moyuyc/visit-tree": "^4.0.3",
+    "@ohkit/dom-helper": "^0.0.1",
+    "@ohkit/prefix-classname": "^0.0.3"
+  },
+  "devDependencies": {
+  },
+  "peerDependencies": {
+    "react": ">=17",
+    "react-dom": ">=17"
+  }
+}

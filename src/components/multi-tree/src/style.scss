@@ -1,0 +1,212 @@
+$prefix: ohkit;
+$dashed-v-line-z-index: 1;
+$v-line-z-index: 2;
+$line-mask-z-index: 3;
+$h-line-z-index: 4;
+$toggle-btn-z-index: 5;
+$toggle-btn-size: 26px;
+$toggle-border-width: 2px;
+$primary-color: #4c84ff;
+$tree-line-color: $primary-color;
+$mul-tree-bg: #f2f5f9;
+$line-size: 2px; // 连接线粗细
+
+.#{$prefix}-multi-tree__ {
+    // main multi tree region
+    &container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+    
+    &tree-layout-wrapper {
+        width: 100%;
+        height: 100%;
+        cursor: grab;
+        overflow: auto;
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+    
+    &tree-layout {
+        transform-origin: center left;
+        position: relative;
+    }
+    
+    &translate-animate {
+        transition: translateX 0.2s ease, scale 0.2s ease;
+    }
+    
+    &card {
+        position: absolute;
+        will-change: top, left;
+
+        .loading-icon {
+            display: none;
+            position: absolute;
+            height: $toggle-btn-size;
+            width: $toggle-btn-size;
+            border-radius: 50%;
+            background-color: #fff;
+            background-image: url('./mini-loading.gif');
+            background-position: center;
+            background-size: 14px;
+            background-repeat: no-repeat;
+        }
+        
+        &.loading-left-child-tree {
+            .left-loading {
+                display: block;
+            }
+        }
+        
+        &.loading-right-child-tree {
+            .right-loading {
+                display: block;
+            }
+        }
+    }
+    
+    &card-content {
+        position: relative;
+    }
+    
+    &toggle-btn {
+        z-index: $toggle-btn-z-index;
+        position: absolute;
+        top: 0;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        border: $toggle-border-width solid transparent;
+        height: $toggle-btn-size;
+        width: $toggle-btn-size;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 14px;
+        color: #848fa7;
+        background-color: #fff;
+        
+        &:hover {
+            color: $primary-color;
+            box-shadow: 0 1px 14px rgba(31, 35, 41, 0.2);
+        }
+        
+        &.has-virtual {
+            border-color: #f27c49;
+        }
+        
+        .icon-fold {
+            width: 8px;
+            height: 2px;
+            border-radius: 1px;
+            background-color: #8490a7;
+        }
+    }
+
+    &d-card {
+        position: relative;
+        z-index: $h-line-z-index + 1;
+        background-color: #cfd5df;
+    }
+
+    @mixin h-line-css {
+        position: absolute;
+        z-index: $h-line-z-index;
+        will-change: top;
+    }
+    
+    &short-line {
+        @include h-line-css;
+        top: 0;
+        transform: translateY(-calc($line-size / 2));
+        border-top: $line-size solid $tree-line-color;
+        
+        &.dashed-line {
+            border-top-style: dashed;
+        }
+    }
+    
+    &horizontal-line {
+        @include h-line-css;
+        
+        &-right {
+            border-right: $line-size solid $tree-line-color;
+            
+            &.dashed-line {
+                border-right-style: dashed;
+            }
+        }
+
+        &-left {
+            border-left: $line-size solid $tree-line-color;
+            
+            &.dashed-line {
+                border-left-style: dashed;
+            }
+        }
+
+        &.middle-line {
+            top: 50%;
+            transform: translateY(-calc($line-size / 2));
+            border-top: $line-size solid $tree-line-color;
+            
+            &.dashed-line {
+                border-top-style: dashed;
+            }
+        }
+
+        &.top-line {
+            will-change: height;
+            transform: translateY(-calc($line-size / 2));
+            border-top: $line-size solid $tree-line-color;
+            
+            &.dashed-line {
+                border-top-style: dashed;
+            }
+        }
+
+        &.bottom-line {
+            will-change: height;
+            transform: translateY(calc($line-size / 2));
+            border-bottom: $line-size solid $tree-line-color;
+            
+            &.dashed-line {
+                border-bottom-style: dashed;
+            }
+        }
+    }
+
+    @mixin v-line-css {
+        position: absolute;
+        background-color: $mul-tree-bg;
+        border-left-color: $tree-line-color;
+        border-left-width: $line-size;
+    }
+    
+    &vertical-line {
+        @include v-line-css;
+        border-left-style: solid;
+        z-index: $v-line-z-index;
+    }
+    
+    &vertical-line-dashed {
+        @include v-line-css;
+        border-left-style: dashed;
+        z-index: $dashed-v-line-z-index;
+        transform: translateY(-50%);
+    }
+
+    &btn-line-wrapper {
+        position: absolute;
+    }
+
+    &top-bottom-line-mask {
+        position: absolute;
+        z-index: $line-mask-z-index;
+        will-change: height;
+    }
+}
