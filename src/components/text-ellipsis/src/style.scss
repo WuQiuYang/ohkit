@@ -1,8 +1,6 @@
-@use '../../style/global.scss' as global;
-
+$prefix: ohkit;
 $text-ellipsis-color: #709bff; // #4c84ff;
 $btn-fold-color: #4c84ff; // #727a8b;
-$prefix: global.$comp-prefix;
 
 @mixin text-ellipsis-break() {
   overflow-wrap: break-word;
