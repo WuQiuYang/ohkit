@@ -4,7 +4,7 @@ import { Button, Tooltip, Popover } from 'antd';
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
 
 import { TextEllipsis, TextEllipsisProps } from '.';
-import { text, element } from './__test__/data';
+import { text, element } from './__mock__/data';
 
 const meta = {
   // title: 'Components/TextEllipsis',
