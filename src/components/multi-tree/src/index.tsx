@@ -5,154 +5,28 @@ import {
   prefixClassname as p,
   classNames as cx,
 } from "@ohkit/prefix-classname";
-import Measure from "@ohkit/measure";
+import { Measure } from "@ohkit/measure";
 import { assignRef } from "@ohkit/react-helper";
 import {
   addClass,
   addEventListener,
   scrollIntoViewIfNeeded,
 } from "@ohkit/dom-helper";
-import { MultiTreeToolbar, MultiTreeToolbarProps } from "./toolbar";
+import { MultiTreeToolbar } from "./toolbar";
+import { ITreeData, Position, Direction, MultiTreeProps, NodeWithTop } from "./typing";
 import "./style.scss";
 
-export interface ITreeData {
-  id?: string | number;
-  key?: string | number;
-  label?: string;
-  __direction?: Direction;
-  __treeIndex?: number;
-  __isRoot?: boolean;
-  __isFirst?: boolean;
-  __isLast?: boolean;
-  /**
-   * 分支点相对节点top偏移量
-   */
-  __forkPointTopOffset?: number;
-  /**
-   * 记录最后一次获取子节点的时间
-   */
-  __childrenUpdateTime?: number;
-  /**
-   * 每个节点的唯一标识
-   */
-  __uniKey?: string | number;
-  /**
-   * 每个节点的dom引用
-   */
-  // ref?: HTMLDivElement | null;
-  __position?: Position;
-  // [key: string]: any;
-
-  left?: Array<ITreeData>;
-  right?: Array<ITreeData>;
-  leftNum?: number;
-  rightNum?: number;
-  leftVirtualNum?: number;
-  rightVirtualNum?: number;
-  openLeft?: boolean;
-  openRight?: boolean;
-  isVirtual?: boolean;
-  // [key: string]: any;
-}
-
-type Direction = "left" | "right" | "center";
-interface Position {
-  top?: number;
-  left?: number;
-  width?: number;
-  height?: number;
-}
-/**
- * 多树组件属性接口定义
- * @template T extends ITreeData
- */
-export interface MultiTreeProps<T extends ITreeData = ITreeData> {
-  /** 自定义类名 */
-  className?: string;
-  /** 树形结构数据列表 */
-  treeList: T[];
-  /** 子节点展开状态切换回调函数 */
-  onToggle?: (node: T, direction: "left" | "right") => void;
-  /** 获取子树数据的异步函数 */
-  fetchChildTree?: (node: T, direction: "left" | "right") => Promise<Array<T>>;
-  /** 缓存最大生存时间（毫秒） */
-  cacheMaxAge?: number;
-  /** 当前可视节点 */
-  visiableNode?: T;
-  /** 画布高度 */
-  height?: number;
-  /** 画布宽度 */
-  width?: number;
-  /** 布局安全边距 */
-  layoutSafeMargin?: number;
-  /** 布局背景颜色 */
-  layoutBgColor?: string;
-  /** 子节点获取是否需要缓存 */
-  needCache?: boolean;
-  /** 卡片宽度 */
-  cardWidth?: number;
-  /** 卡片高度 目前不必传入 是自适应的 */
-  // cardHeight?: number;
-  /** 叶子节点左右间隙 应该大于 toggleBtnSpan * 2 + ToggleBtnSize */
-  cardWidthSpan?: number;
-  /** 卡片高度间距 树内部叶子节点上下间隙 */
-  cardHeightSpan?: number;
-  /** 上下树分支间隙 */
-  treeTopSpan?: number;
-  /** 顶部和底部线条圆角 */
-  topBottomLineRadius?: number;
-  /** 节点与按钮间隙 */
-  toggleBtnSpan?: number;
-  /** 左树路径（在T中的key） */
-  leftTreePath?: keyof T;
-  /** 右树路径（在T中的key） */
-  rightTreePath?: keyof T;
-  /** 左树子节点数取值key */
-  leftNumKey?: keyof T;
-  /** 右树子节点数取值key */
-  rightNumKey?: keyof T;
-  /** 左树虚拟子节点数取值key */
-  leftVirtualNumKey?: keyof T;
-  /** 右树虚拟子节点数取值key */
-  rightVirtualNumKey?: keyof T;
-  /** 左树虚拟子节点数量 */
-  leftVirtualChildNum?: number;
-  /** 右树虚拟子节点数量 */
-  rightVirtualChildNum?: number;
-  /** 打开/收起左树取值key */
-  openLeftKey?: keyof T;
-  /** 打开/收起右树取值key */
-  openRightKey?: keyof T;
-  /** 标记节点是虚拟节点（与父节点虚线连接）的取值key */
-  virtualNodeKey?: keyof T;
-  /** 渲染卡片节点回调函数 */
-  renderCard?: (node: T) => React.ReactNode;
-  /** 卡片包裹容器类名 */
-  cardWrapClassName?: string;
-  /** 渲染工具栏回调函数 */
-  renderToolbar?: (opt: {
-    zoom: number;
-    zoomIn: () => number;
-    zoomOut: () => number;
-    goBackCenter: () => void;
-  }) => React.ReactNode;
-  /** 工具栏属性 */
-  toolbarProps?: MultiTreeToolbarProps<T>;
-}
 
 export const c = p("ohkit-multi-tree__");
 
-const toggleBtnSize = "26px"; // 对应scss中 $toggle-btn-size: 26px; 需同步调整
-const lineSize = "2px"; // 对应scss中 $toggle-border-width: 2px; 需同步调整
-
-const getUniKey = () => {
+function getEasyUniKey() {
   return (Math.random() * 1000000) | 0;
 };
 
 let treeChange = true;
 const ShortLineWidth = 16; // default
-const ToggleBtnSize = parseFloat(toggleBtnSize); // 26
-const LineSize = parseFloat(lineSize); // 2
+const ToggleBtnSize = 26; // 26
+const LineSize = 2; // 2
 
 function getDefaultProps<T extends ITreeData = ITreeData>() {
   return {
@@ -170,7 +44,10 @@ function getDefaultProps<T extends ITreeData = ITreeData>() {
     cardWidthSpan: 40 + ShortLineWidth * 2 + ToggleBtnSize, // 叶子节点左右间隙 应该大于 toggleBtnSpan * 2 + ToggleBtnSize
     cardHeightSpan: 20, // 树内部叶子节点上下间隙
     treeTopSpan: 50, // 上下树分支间隙
+    lineSize: LineSize,
+    lineColor: '#4c84ff',
     topBottomLineRadius: 12, // 边界子节点圆角值
+    toggleBtnSize: ToggleBtnSize,
     toggleBtnSpan: ShortLineWidth, // 节点与按钮间隙 ShortLineWidth
     leftTreePath: "left", // 左树path key
     rightTreePath: "right" as keyof T, // 右树path key
@@ -184,23 +61,17 @@ function getDefaultProps<T extends ITreeData = ITreeData>() {
   };
 }
 
-type TyMultiTreeProps<T extends ITreeData = ITreeData> = MultiTreeProps<T> &
+export type TyMultiTreeProps<T extends ITreeData = ITreeData> = MultiTreeProps<T> &
   ReturnType<typeof getDefaultProps<T>>;
-type TyState<T extends ITreeData = ITreeData> = {
+export type TyState<T extends ITreeData = ITreeData> = {
   renderSeq: number;
   treeList: T[];
 };
-interface NodeWithTop<T> {
-  maxTop?: number;
-  node?: T;
-}
-
 export class MultiTree<T extends ITreeData = ITreeData> extends Component<
   MultiTreeProps<T>,
   TyState<T>
 > {
-  // static defaultProps = getDefaultProps();
-  static defaultProps = {};
+  static defaultProps = getDefaultProps() as Partial<MultiTreeProps>;
 
   static getDerivedStateFromProps(
     nextProps: Readonly<MultiTreeProps<ITreeData>>,
@@ -502,7 +373,6 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
       // props.treeList change
       if (treeChange) {
         treeChange = false;
-        // this.nodeWidth = 0;
         this.initPosition();
       }
     }
@@ -678,7 +548,6 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
               }, 0) +
               (treeList.length - 1) * cardHeightSpan;
 
-            // const spanWidth = getNodePosition(node, 'width', cardWidth);
             const spanWidth = this.nodeWidth || cardWidth;
             top =
               (Math.max(centerCardTotalHeight, height) -
@@ -716,7 +585,6 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
         node.__isLast = ctx.index === peerNodes.length - 1;
 
         const prevPeerNode = peerNodes[ctx.index - 1];
-        // const spanWidth = getNodePosition(ctx.parent, 'width', cardWidth) + cardWidthSpan;
         const spanWidth = this.nodeWidth + cardWidthSpan;
         const spanHeight =
           getNodePosition(prevPeerNode, "height", 0) + cardHeightSpan;
@@ -727,7 +595,7 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
           }, 0) +
           (peerNodes.length - 1) * cardHeightSpan;
 
-        // 父节点到子节点的分叉点top位置（默认取第一次渲染时节点高度中心，即后续改变卡片高度，分叉点位置恒定）
+        // Note: 父节点到子节点的分叉点top位置（默认取第一次渲染时节点高度中心，即后续改变卡片高度，分叉点位置恒定）
         const parentForkPointTopOffset =
           get(ctx.parent, "__forkPointTopOffset") ||
           getNodePosition(ctx.parent, "height", 0) / 2;
@@ -1050,8 +918,8 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
       offsetRight?: number;
     } = {}
   ) => {
-    const { toggleBtnSpan } = this.props as Readonly<TyMultiTreeProps<T>>;
-    const xSpan = toggleBtnSpan + ToggleBtnSize + 20;
+    const {toggleBtnSpan, toggleBtnSize} = this.props as Readonly<TyMultiTreeProps<T>>;
+    const xSpan = toggleBtnSpan + toggleBtnSize + 20;
     dom &&
       scrollIntoViewIfNeeded(dom, {
         behavior: "smooth",
@@ -1119,11 +987,11 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
   };
 
   getHorizontalLineWidth = () => {
-    const { cardWidthSpan, toggleBtnSpan } = this.props as Readonly<
+    const {cardWidthSpan, toggleBtnSpan, toggleBtnSize} = this.props as Readonly<
       TyMultiTreeProps<T>
     >;
     // - shortLine * 2 - btnSize
-    const base = cardWidthSpan - toggleBtnSpan * 2 - ToggleBtnSize;
+    const base = cardWidthSpan - toggleBtnSpan * 2 - toggleBtnSize;
     return base;
   };
 
@@ -1160,7 +1028,7 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
   };
 
   getVerticalSolidLineHeightAndTop = (nodeList: T[], parentNode: T) => {
-    const { virtualNodeKey, topBottomLineRadius } = this.props as Readonly<
+    const {virtualNodeKey, topBottomLineRadius, lineSize} = this.props as Readonly<
       TyMultiTreeProps<T>
     >;
     const { getNodeCenterTop } = this;
@@ -1204,7 +1072,7 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
       // 第一个节点非虚
       if (!nodeList[0][virtualNodeKey]) {
         height -= topBottomLineRadius;
-        offsetTop += topBottomLineRadius - LineSize / 2;
+        offsetTop += topBottomLineRadius - lineSize / 2;
       }
 
       // 最后一个节点非虚
@@ -1214,7 +1082,7 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
     }
 
     return {
-      height: height ? height + LineSize / 2 + buffer : 0,
+      height: height ? height + lineSize / 2 + buffer : 0,
       top: offsetTop,
     };
   };
@@ -1348,31 +1216,26 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
     const isTopChild = !!node.__isFirst && !node.__isLast;
     const isBottomChild = !!node.__isLast && !node.__isFirst;
     const height = getNodePosition(node, "height");
-    const width = getNodePosition(node, "width");
+    // const width = getNodePosition(node, "width");
     const left = getNodePosition(node, "left");
     const top = getNodePosition(node, "top");
     const nodeCtx = this.getNodeCtx(node);
     const key = `${node.__treeIndex}-${node.__direction}-${nodeCtx?.paths.join(
       "-"
     )}-${
-      node.id || node.key || node.__uniKey || (node.__uniKey = getUniKey())
+      node.id || node.key || node.__uniKey || (node.__uniKey = getEasyUniKey())
     }`;
 
     // console.log('---renderNode---:', key);
     return (
-      <Measure client throttleMs={0} key={`mea-${key}`}>
+      <Measure offset throttleMs={0} key={`mea-${key}`}>
         {({ measureRef, contentRect }) => {
-          if (contentRect.client) {
-            const { width: newWidth, height: newHeight } = contentRect.client;
+          if (contentRect.offset) {
+            const { width: newWidth, height: newHeight } = contentRect.offset;
 
             // TODO: 主要是高度变化（已有高度的情况下）， 宽度后续看看按需吧
             if (newHeight && height && newHeight !== height) {
-              console.log(
-                height,
-                "=>",
-                newHeight,
-                "--- node height size change, need refresh"
-              );
+              console.log(height, "=>", newHeight, "--- node height size change, need refresh");
               const diff = Math.abs(newHeight - height);
               // INFO: 允许误差在1px以内（某些浏览器上会有1px误差导致一直触发刷新导致页面来回抖动）
               if (diff > 1) {
@@ -1413,8 +1276,7 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
               style={{
                 top: top || 0,
                 left: left || 0,
-                // height,
-                width: this.nodeWidth, // width,
+                width: this.nodeWidth || cardWidth,
                 visibility: isNil(top) ? "hidden" : "inherit",
               }}
             >
@@ -1508,11 +1370,24 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
       return null;
     }
 
+    const {lineSize, lineColor, toggleBtnSize} = this.props as Readonly<TyMultiTreeProps<T>>;
     const getComp = (xKey: "left" | "right") => {
+      const vLineComStyle = {
+        [xKey]: -(2 * toggleBtnSpan + toggleBtnSize + lineSize),
+        borderLeftWidth: lineSize,
+        borderLeftColor: lineColor
+      };
       const isRenderLeft = xKey === "left";
       const childIsAllVirtual = isRenderLeft
         ? !leftRealChildNum
         : !rightRealChildNum;
+      const sLineComStyle: React.CSSProperties = {
+        width: toggleBtnSpan,
+        borderTopWidth: lineSize,
+        borderTopColor: lineColor,
+        borderTopStyle: childIsAllVirtual ? "dashed" : "solid",
+        transform: `translateY(-${lineSize / 2}px)`,
+      };
       const showChild = isRenderLeft ? openLeft : openRight;
       const hasVirtualChild =
         (isRenderLeft ? leftVirtualChildNum : rightVirtualChildNum) > 0;
@@ -1535,7 +1410,9 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
           <div
             className={cx(c("toggle-btn"), hasVirtualChild && "has-virtual")}
             style={{
-              [xKey]: -(toggleBtnSpan + ToggleBtnSize),
+              [xKey]: -(toggleBtnSpan + toggleBtnSize),
+              width: toggleBtnSize,
+              height: toggleBtnSize,
             }}
             onClick={async (e) => {
               const dom = this.getNodeDom(node);
@@ -1554,33 +1431,32 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
             <div className={cx("loading-icon", `${xKey}-loading`)}></div>
           </div>
           <div
-            className={cx(c("short-line"), childIsAllVirtual && "dashed-line")}
+            className={c("short-line")}
             style={{
               [xKey]: -toggleBtnSpan,
-              width: toggleBtnSpan,
+              ...sLineComStyle,
             }}
           ></div>
           {showChild && childOffsetInfoReady && (
             <Fragment>
               <div
-                className={cx(
-                  c("short-line"),
-                  childIsAllVirtual && "dashed-line"
-                )}
+                className={c("short-line")}
                 style={{
-                  [xKey]: -(2 * toggleBtnSpan + ToggleBtnSize),
-                  width: toggleBtnSpan,
+                  [xKey]: -(2 * toggleBtnSpan + toggleBtnSize),
+                  ...sLineComStyle,
                 }}
               />
               {showVerticalLine && (
                 <Fragment>
+                  {/* 虚线 */}
                   <div
                     className={c("vertical-line-dashed")}
                     style={{
                       height: this.getVerticalLineHeight(childNodeList),
-                      [xKey]: -(2 * toggleBtnSpan + ToggleBtnSize + LineSize),
+                      ...vLineComStyle,      
                     }}
                   />
+                  {/* 实线（层级可覆盖虚线） */}
                   <div
                     className={c("vertical-line")}
                     style={{
@@ -1589,7 +1465,7 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
                         childNodeList,
                         node
                       ),
-                      [xKey]: -(2 * toggleBtnSpan + ToggleBtnSize + LineSize),
+                      ...vLineComStyle
                     }}
                   />
                 </Fragment>
@@ -1634,6 +1510,8 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
     if (!isLeftNode && !isRightNode) {
       return null;
     }
+    const {lineSize, lineColor} = this.props as Readonly<TyMultiTreeProps<T>>;
+    const borderLine = `${lineSize}px solid ${lineColor}`;
     const ryKey = isTopChild ? "Top" : "Bottom";
     const rxKey = isLeftNode ? "Right" : "Left";
     const halfHeight = this.getNodePosition(node, "height", 0) / 2 || Infinity;
@@ -1647,7 +1525,6 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
               "horizontal-line",
               isLeftNode ? "horizontal-line-right" : "horizontal-line-left"
             ),
-            isVirtualNode && "dashed-line",
             isBottomChild
               ? "bottom-line"
               : isTopChild
@@ -1656,14 +1533,20 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
           )}
           style={{
             height: isTopOrBottomChild
-              ? Math.min(this.getTopBottomToParentDistance(node), halfHeight) // + cardHeightSpan)
+              ? Math.min(this.getTopBottomToParentDistance(node), halfHeight + lineSize / 2) // + cardHeightSpan)
               : 0,
             width,
             [rxKey.toLowerCase()]: -width,
-            [ryKey.toLowerCase()]: isBottomChild ? "50%" : halfHeight,
+            // [ryKey.toLowerCase()]: isBottomChild ? "50%" : halfHeight,
+            [ryKey.toLowerCase()]: "50%",
             [`border${ryKey}${rxKey}Radius`]: isTopOrBottomChild
               ? topBottomLineRadius
               : undefined,
+            [`border${rxKey}`]: borderLine,
+            [`border${rxKey}Style`]: isVirtualNode ? 'dashed' : 'solid',
+            [`border${isBottomChild ? 'Bottom' : 'Top'}`]: borderLine,
+            [`border${isBottomChild ? 'Bottom' : 'Top'}Style`]: isVirtualNode ? 'dashed' : 'solid',
+            transform: `translateY(${(isBottomChild ? 1 : -1) * lineSize / 2}px)`,
           }}
         ></div>
         {this.renderMask({
@@ -1720,7 +1603,6 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
 
   render() {
     const { className, renderToolbar, toolbarProps } = this.props;
-    // console.log('---main render---');
     return (
       <div ref={this.containerRef} className={cx(c("container"), className)}>
         {this.renderTreeGroup()}
@@ -1733,7 +1615,4 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
     );
   }
 }
-/**
- * 默认属性配置
- */
-MultiTree.defaultProps = getDefaultProps();
+

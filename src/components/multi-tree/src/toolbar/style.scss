@@ -19,8 +19,16 @@ $prefix: ohkit;
         display: flex;
         align-items: center;
         justify-content: space-around;
+        padding: 4px 0;
     }
-    
+
+    &zoom-control {
+        padding: 4px 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: transparent;
+    }
+
     &zoom-size {
         width: 60px;
         padding: 10px 0;

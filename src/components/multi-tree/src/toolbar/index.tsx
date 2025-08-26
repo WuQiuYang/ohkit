@@ -1,30 +1,51 @@
 import React, {Component} from 'react';
 import {isFunction} from 'lodash-es';
-import {Button, Tooltip as ToolTip} from 'antd';
 import {
   classNames as cx,
 } from "@ohkit/prefix-classname";
-import {ITreeData, type MultiTree, c} from "../";
+import {ITreeData,} from "../typing";
+import {type MultiTree, c} from "../";
 import './style.scss';
 
 export interface MultiTreeToolbarProps<T extends ITreeData = ITreeData> {
   className?: string;
+  /**
+   * 最大缩放倍数 默认1.25
+   */
   maxZoom?: number;
+  /**
+   * 最小缩放倍数 默认0.25
+   */
   minZoom?: number;
+  /**
+   * 每次放大或缩小的步长 默认0.25
+   */
   zoomStep?: number;
+  /**
+   * 指向 MultiTree 组件的引用
+   */
   treeRef: MultiTree<T>;
+  /**
+   * 自定义渲染工具栏方法
+   */
   renderToolbar?: (opt: {
-  zoom: number;
-  zoomIn: MultiTreeToolbar<T>["zoomIn"];
-  zoomOut: MultiTreeToolbar<T>["zoomOut"];
-  goBackCenter: MultiTreeToolbar<T>["goBackCenter"];
+    zoom: number;
+    minZoom: number;
+    maxZoom: number;
+    zoomStep: number;
+    zoomIn: MultiTreeToolbar<T>["zoomIn"];
+    zoomOut: MultiTreeToolbar<T>["zoomOut"];
+    goBackCenter: MultiTreeToolbar<T>["goBackCenter"];
   }) => React.ReactNode;
+  /**
+   * 工具栏最外层容器点击事件
+   */
   onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
 const defaultMultipleTreeToolbarProps = {
   maxZoom: 1.25,
   minZoom: 0.25,
-  zoomStep: 0.25
+  zoomStep: 0.25 // TODO: 优化为整数 代替 小数运算
 };
 type DefaultMultiTreeToolbarProps = typeof defaultMultipleTreeToolbarProps;
 
@@ -43,7 +64,8 @@ export class MultiTreeToolbar<T extends ITreeData = ITreeData> extends Component
         const {minZoom, zoomStep, treeRef} = this.props as Readonly<TyMultiTreeToolbarProps<T>>;
         let {zoom} = this;
         if (zoom > minZoom) {
-            zoom = Math.max(zoom - zoomStep, minZoom);
+            const newZoom = Math.round(zoom * 100 - zoomStep * 100) / 100; // 处理case: 1.4 - 0.1 !== 1.3
+            zoom = Math.max(newZoom, minZoom);
             treeRef.zoomSize(zoom);
             this.zoom = zoom;
         }
@@ -54,7 +76,8 @@ export class MultiTreeToolbar<T extends ITreeData = ITreeData> extends Component
         const {maxZoom, zoomStep, treeRef} = this.props as Readonly<TyMultiTreeToolbarProps<T>>;
         let {zoom} = this;
         if (zoom < maxZoom) {
-            zoom = Math.min(zoom + zoomStep, maxZoom);
+            const newZoom = Math.round(zoom * 100 + zoomStep * 100) / 100; // 处理case: 1.1 + 0.1 !== 1.2
+            zoom = Math.min(newZoom, maxZoom);
             treeRef.zoomSize(zoom);
             this.zoom = zoom;
         }
@@ -67,6 +90,7 @@ export class MultiTreeToolbar<T extends ITreeData = ITreeData> extends Component
         if (zoom !== preZoom) {
             this.setState({zoom});
         }
+        return zoom;
     };
 
     handleZoomIn = () => {
@@ -75,6 +99,7 @@ export class MultiTreeToolbar<T extends ITreeData = ITreeData> extends Component
         if (zoom !== preZoom) {
             this.setState({zoom});
         }
+        return zoom;
     };
 
     goBackCenter = () => {
@@ -83,13 +108,16 @@ export class MultiTreeToolbar<T extends ITreeData = ITreeData> extends Component
     };
 
     render() {
-        const {renderToolbar, minZoom, maxZoom} = this.props as Readonly<TyMultiTreeToolbarProps<T>>;
+        const {renderToolbar, minZoom, maxZoom, zoomStep} = this.props as Readonly<TyMultiTreeToolbarProps<T>>;
         if (isFunction(renderToolbar)) {
-            const {zoom, zoomIn, zoomOut, goBackCenter} = this;
+            const {handleZoomIn, handleZoomOut, goBackCenter} = this;
             return renderToolbar({
-                zoom,
-                zoomIn,
-                zoomOut,
+                zoom: this.state.zoom,
+                minZoom,
+                maxZoom,
+                zoomStep,
+                zoomIn: handleZoomIn,
+                zoomOut: handleZoomOut,
                 goBackCenter
             });
         }
@@ -100,37 +128,26 @@ export class MultiTreeToolbar<T extends ITreeData = ITreeData> extends Component
         return (
             <div className={cx(c('toolbar-container'), className)} onClick={onClick}>
                 <div className={c('toolbar-control')}>
-                    <ToolTip title={'缩小'}>
-                        <Button
-                            color="default"
-                            variant="text"
-                            icon={'-'}
-                            size={'small'}
-                            disabled={zoom <= minZoom} // TODO: tooltip disabled 后不消失
-                            onClick={this.handleZoomOut}
-                        />
-                    </ToolTip>
-                    <div className={c('zoom-size')}>{zoom * 100}%</div>
-                    <ToolTip title={'放大'}>
-                        <Button
-                            color="default"
-                            variant="text"
-                            icon={'+'}
-                            size={'small'}
-                            disabled={zoom >= maxZoom}
-                            onClick={this.handleZoomIn}
-                        />
-                    </ToolTip>
+                    <button 
+                    className={c('zoom-control')}
+                    onClick={this.handleZoomOut}
+                    >
+                    缩小
+                    </button>
+                    <div className={c('zoom-size')}>{Math.round(zoom * 100)}%</div>
+                    <button 
+                    className={c('zoom-control')}
+                    onClick={this.handleZoomIn}
+                    >
+                    放大
+                    </button>
                     <div className={c('sep')}></div>
-                    <ToolTip title={'回到原点'}>
-                        <Button
-                          color="default"
-                          variant="text"
-                          icon={'o'}
-                          size={'small'}
-                          onClick={this.goBackCenter}
-                        />
-                    </ToolTip>
+                    <button 
+                    className={c('zoom-control')}
+                    onClick={this.goBackCenter}
+                    >
+                    回到中点
+                    </button>
                 </div>
             </div>
         );
