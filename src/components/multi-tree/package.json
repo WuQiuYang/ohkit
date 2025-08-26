@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/multi-tree",
-  "version": "0.0.1-beta.0",
+  "version": "0.0.1",
   "description": "横向多根节点双枝树、多条双枝树组合、对单枝树也兼容",
   "keywords": [
     "multi-tree",
@@ -34,12 +34,10 @@
   },
   "dependencies": {
     "@moyuyc/visit-tree": "4.0.3",
-    "@ohkit/dom-helper": "^0.0.1",
-    "@ohkit/measure": "^0.0.5",
+    "@ohkit/dom-helper": "0.0.2",
+    "@ohkit/measure": "0.0.6",
     "@ohkit/prefix-classname": "^0.0.3",
     "@ohkit/react-helper": "^0.0.4"
-  },
-  "devDependencies": {
   },
   "peerDependencies": {
     "react": ">=16.8",

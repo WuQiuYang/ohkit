@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/utils",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "some utils",
   "keywords": [
     "@ohkit",
@@ -34,9 +34,9 @@
   },
   "dependencies": {
     "@ohkit/async": "0.0.3",
-    "@ohkit/auto-reporter": "0.0.4",
+    "@ohkit/auto-reporter": "0.0.5",
     "@ohkit/debug": "0.0.3",
-    "@ohkit/dom-helper": "0.0.1",
+    "@ohkit/dom-helper": "0.0.2",
     "@ohkit/json-helper": "0.0.3",
     "@ohkit/platform": "0.0.3",
     "@ohkit/prefix-classname": "0.0.3",
