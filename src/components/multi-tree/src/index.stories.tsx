@@ -7,7 +7,7 @@ import {
   getMockDataList,
   getZeroNineRange,
   fetchChildren,
-} from "./__tests__/mock-data";
+} from "./__mock__";
 
 const meta: Meta<typeof MultiTree> = {
   // title: 'Components/MultiTree',

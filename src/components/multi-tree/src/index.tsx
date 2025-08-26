@@ -144,9 +144,11 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
     : D => {
     const position = this.nodePositionWeakMap.get(node);
     if (key) {
-      // @ts-ignore
+      // eslint-disable-next-line
+      // @ts-expect-error
       return get(position, key, defaultValue);
     }
+    // eslint-disable-next-line
     // @ts-ignore
     return position;
   };
@@ -284,7 +286,7 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
         // TODO: 待优化 竖直方向缩放中心是center，处理逻辑与水平方向（缩放中心left）不同
         const zoomAddHeight = (newHeight * (zoom - 1)) / 2;
         let transX = needTransX * zoom + zoomAddWidth * zoom;
-        let transY = needTransY + zoomAddHeight * zoom;
+        const transY = needTransY + zoomAddHeight * zoom;
 
         // zoomIn可能会导致transX变成负值，需修正transX
         if (minLeft < -transX) {
@@ -327,8 +329,8 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
 
   // 需要销毁的拖拽事件
   disposeMoveEvent = () => {
-    this.moveEndRemover && this.moveEndRemover();
-    this.movingRemover && this.movingRemover();
+    this.moveEndRemover?.();
+    this.movingRemover?.();
   };
 
   __animationFrame: number | null = null;
@@ -345,7 +347,7 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
       this.setCenterPosition({ init: true });
 
       // 定位后再添加动画（初始化定位不需要动画效果）
-      this.animateRemover && this.animateRemover();
+      this.animateRemover?.();
       this.animateRemover = this.layoutRef.current
         ? addClass(this.layoutRef.current, c("translate-animate"))
         : null;
@@ -381,7 +383,7 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
   componentWillUnmount() {
     treeChange = false;
     this.disposeMoveEvent();
-    this.animateRemover && this.animateRemover();
+    this.animateRemover?.();
   }
 
   renderTreeGroup(treeList = this.state.treeList) {
@@ -632,15 +634,15 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
           if (!this.maxTopMap[treeIndex][direction]) {
             this.maxTopMap[treeIndex][direction] = {};
           }
-          if (!this.maxTopMap[treeIndex][direction][depth]) {
-            this.maxTopMap[treeIndex][direction][depth] = {};
+          if (!this.maxTopMap[treeIndex][direction]![depth]) {
+            this.maxTopMap[treeIndex][direction]![depth] = {};
           }
           const preMaxTop =
-            this.maxTopMap[treeIndex][direction][depth].maxTop || -Infinity;
+            this.maxTopMap[treeIndex][direction]![depth].maxTop || -Infinity;
           const curNodeTop =
             top + getNodePosition(node, "height", 0) + treeTopSpan;
           if (preMaxTop < curNodeTop) {
-            Object.assign(this.maxTopMap[treeIndex][direction][depth], {
+            Object.assign(this.maxTopMap[treeIndex][direction]![depth], {
               maxTop: curNodeTop,
               node,
             });
@@ -891,10 +893,11 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
           ? this.getNodeDom(visiableNode)
           : null;
         // 再检查定位需可见的node
-        visiableNodeDom &&
+        if (visiableNodeDom) {
           this.scrollNodeIntoView(visiableNodeDom, {
             behavior: "auto",
           });
+        }
       }
     } else {
       const cDom = this.getNodeDom(this.state.treeList[0]);
@@ -918,17 +921,20 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
       offsetRight?: number;
     } = {}
   ) => {
+    if (!dom) {
+      return;
+    }
     const {toggleBtnSpan, toggleBtnSize} = this.props as Readonly<TyMultiTreeProps<T>>;
     const xSpan = toggleBtnSpan + toggleBtnSize + 20;
-    dom &&
-      scrollIntoViewIfNeeded(dom, {
-        behavior: "smooth",
-        offsetTop: 100,
-        offsetBottom: 100,
-        offsetLeft: xSpan,
-        offsetRight: xSpan,
-        ...opt,
-      });
+
+    scrollIntoViewIfNeeded(dom, {
+      behavior: "smooth",
+      offsetTop: 100,
+      offsetBottom: 100,
+      offsetLeft: xSpan,
+      offsetRight: xSpan,
+      ...opt,
+    });
   };
 
   // 启动拖拽事件监听
@@ -961,14 +967,14 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
           // cDom.style.cursor = 'move';
         }
         if (this.runtime.moving) {
-          cDom && cDom.scrollTo(scrollLeft - diffX, scrollTop - diffY);
+          cDom.scrollTo(scrollLeft - diffX, scrollTop - diffY);
         }
       }, 50)
     );
     this.moveEndRemover = addEventListener(
       document,
       "mouseup",
-      (e) => {
+      () => {
         this.runtime.moving = false;
         this.runtime.moveStart = false;
         this.runtime.moveEnd = true;
@@ -1175,7 +1181,7 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
   renderNode(node: T) {
     const {
       cardWrapClassName,
-      cardHeightSpan,
+      // cardHeightSpan,
       cardWidth,
       // cardHeight,
       treeTopSpan,
@@ -1270,8 +1276,10 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
               className={cx(c("card"), cardWrapClassName)}
               key={key}
               ref={(r) => {
-                r && this.setNodeDom(node, r);
-                assignRef(measureRef, r);
+                if (r) {
+                  this.setNodeDom(node, r);
+                  assignRef(measureRef, r);
+                }
               }}
               style={{
                 top: top || 0,
@@ -1414,13 +1422,13 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
               width: toggleBtnSize,
               height: toggleBtnSize,
             }}
-            onClick={async (e) => {
+            onClick={async () => {
               const dom = this.getNodeDom(node);
               const loadingRemover =
                 dom && addClass(dom, `loading-${xKey}-child-tree`);
               await this.toggleChildTree(node, xKey);
-              loadingRemover && loadingRemover();
-              onToggle && onToggle(node, xKey);
+              loadingRemover?.();
+              onToggle?.(node, xKey);
             }}
           >
             {showChild ? (
