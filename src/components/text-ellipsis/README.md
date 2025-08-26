@@ -32,6 +32,9 @@ function Demo() {
 }
 ```
 
+## 详见示例
+- [更多Demo](https://wuqiuyang.github.io/ohkit/storybook-static/?path=/story/components-text-ellipsis-src)
+
 ## API 说明
 
 ### Props

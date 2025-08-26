@@ -36,6 +36,9 @@ function Example() {
 }
 ```
 
+## 详见示例
+- [更多Demo](https://wuqiuyang.github.io/ohkit/storybook-static/?path=/story/components-measure-src)
+
 ## API 说明
 
 ### Props
