@@ -1520,7 +1520,7 @@ export class MultiTree<T extends ITreeNode = ITreeNode> extends Component<
       return null;
     }
     const {lineSize, lineColor} = this.props as Readonly<TyMultiTreeProps<T>>;
-    const borderLine = `${lineSize}px solid ${lineColor}`;
+    const borderLine = `${lineSize}px ${isVirtualNode ? 'dashed' : 'solid'} ${lineColor}`;
     const ryKey = isTopChild ? "Top" : "Bottom";
     const rxKey = isLeftNode ? "Right" : "Left";
     const halfHeight = this.getNodePosition(node, "height", 0) / 2 || Infinity;
@@ -1552,9 +1552,7 @@ export class MultiTree<T extends ITreeNode = ITreeNode> extends Component<
               ? topBottomLineRadius
               : undefined,
             [`border${rxKey}`]: borderLine,
-            [`border${rxKey}Style`]: isVirtualNode ? 'dashed' : 'solid',
             [`border${isBottomChild ? 'Bottom' : 'Top'}`]: borderLine,
-            [`border${isBottomChild ? 'Bottom' : 'Top'}Style`]: isVirtualNode ? 'dashed' : 'solid',
             transform: `translateY(${(isBottomChild ? 1 : -1) * lineSize / 2}px)`,
           }}
         ></div>
