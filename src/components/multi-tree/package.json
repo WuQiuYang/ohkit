@@ -33,11 +33,11 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@moyuyc/visit-tree": "4.0.3",
-    "@ohkit/dom-helper": "0.0.2",
-    "@ohkit/measure": "0.0.6",
+    "@ohkit/dom-helper": "^0.0.2",
+    "@ohkit/measure": "^0.0.6",
     "@ohkit/prefix-classname": "^0.0.3",
-    "@ohkit/react-helper": "^0.0.4"
+    "@ohkit/react-helper": "^0.0.4",
+    "@ohkit/tree-helper": "^0.0.1-beta.0"
   },
   "peerDependencies": {
     "react": ">=16.8",

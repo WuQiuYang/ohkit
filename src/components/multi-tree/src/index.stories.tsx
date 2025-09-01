@@ -5,7 +5,7 @@ import { MultiTree } from "./index";
 import {
   MockDataList,
   getMockDataList,
-  getZeroNineRange,
+  getNodeHeight,
   fetchChildren,
 } from "./__mock__";
 
@@ -19,8 +19,6 @@ export default meta;
 type Story = StoryObj<
   typeof MultiTree<(typeof MockDataList)[number] & { _height_?: number }>
 >;
-
-const heightRange = [40, 60, 100, 150, 200];
 
 // 基础示例
 export const Default: Story = {
@@ -44,7 +42,7 @@ export const RandomNodeHeight: Story = {
     treeList: MockDataList1,
     renderCard(node) {
       if (!node._height_) {
-        node._height_ = heightRange[Math.floor(getZeroNineRange() / 2)]
+        node._height_ = getNodeHeight();
       }
       return (
         <div
@@ -127,7 +125,7 @@ export const CustomToolbar: Story = {
             onClick={zoomIn}
           />
         </ToolTip>
-        <ToolTip title={"回到原点"}>
+        <ToolTip title={"回到中点"}>
           <Button
             color="default"
             variant="text"
@@ -201,7 +199,7 @@ export const LazyLoading: Story = {
     fetchChildTree: fetchChildren,
     renderCard(node) {
       if (!node._height_) {
-        node._height_ = heightRange[Math.floor(getZeroNineRange() / 2)];
+        node._height_ = getNodeHeight();
       }
       if (node.isVirtual) {
         return (

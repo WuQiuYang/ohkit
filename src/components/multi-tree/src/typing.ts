@@ -1,6 +1,6 @@
 import {MultiTreeToolbarProps} from "./toolbar";
 
-export interface ITreeData {
+export interface ITreeNode {
   id?: string | number;
   key?: string | number;
   label?: string;
@@ -28,8 +28,8 @@ export interface ITreeData {
   __position?: Position;
   // [key: string]: any;
 
-  left?: Array<ITreeData>;
-  right?: Array<ITreeData>;
+  left?: Array<ITreeNode>;
+  right?: Array<ITreeNode>;
   leftNum?: number;
   rightNum?: number;
   leftVirtualNum?: number;
@@ -52,7 +52,7 @@ export interface Position {
  * 多树组件属性接口定义
  * @template T extends ITreeData
  */
-export interface MultiTreeProps<T extends ITreeData = ITreeData> {
+export interface MultiTreeProps<T extends ITreeNode = ITreeNode> {
   /** 自定义类名 */
   className?: string;
   /** 树形结构数据列表 */

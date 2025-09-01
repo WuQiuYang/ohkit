@@ -122,18 +122,54 @@ function App() {
 
 ### MultiTreeToolbarProps 定义
 ```ts
-interface MultiTreeToolbarProps<T extends ITreeData = ITreeData> {
+interface MultiTreeToolbarProps<T extends ITreeNode = ITreeNode> {
   className?: string;
-  maxZoom?: number;      // 最大缩放倍数，默认1.25
-  minZoom?: number;      // 最小缩放倍数，默认0.25 
-  zoomStep?: number;     // 缩放步长，默认0.25
-  treeRef: MultiTree<T>; // MultiTree组件引用
+  /**
+   * 最大缩放倍数 默认1.25
+   */
+  maxZoom?: number;
+  /**
+   * 最小缩放倍数 默认0.25
+   */
+  minZoom?: number;
+  /**
+   * 每次放大或缩小的步长 默认0.25
+   */
+  zoomStep?: number;
+  /**
+   * 放大按钮文字
+   * @default '放大'
+   */
+  zoomInText?: string;
+  /**
+   * 缩小按钮文字
+   * @default '缩小'
+   */
+  zoomOutText?: string;
+  /**
+   * 返回至中心点按钮文字
+   * @default '返回中点'
+   */
+  backCenterText?: string;
+  /**
+   * 指向 MultiTree 组件的引用
+   */
+  treeRef: MultiTree<T>;
+  /**
+   * 自定义渲染工具栏方法
+   */
   renderToolbar?: (opt: {
     zoom: number;
+    minZoom: number;
+    maxZoom: number;
+    zoomStep: number;
     zoomIn: () => number;
     zoomOut: () => number;
     goBackCenter: () => void;
   }) => React.ReactNode;
+  /**
+   * 工具栏最外层容器点击事件
+   */
   onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
 ```
@@ -145,12 +181,25 @@ interface MultiTreeToolbarProps<T extends ITreeData = ITreeData> {
 | maxZoom | `number` | 1.25 | 最大缩放倍数 |
 | minZoom | `number` | 0.25 | 最小缩放倍数 |
 | zoomStep | `number` | 0.25 | 每次缩放的变化量 |
+| zoomInText | `string` | "放大" | 放大按钮显示文本 |
+| zoomOutText | `string` | "缩小" | 缩小按钮显示文本 |
+| backCenterText | `string` | "返回中点" | 返回中心点按钮显示文本 |
 | treeRef | `MultiTree<T>` | - | MultiTree组件实例引用 |
 | renderToolbar | `function` | - | 自定义工具栏渲染函数 |
 | onClick | `function` | - | 工具栏点击事件 |
 
 ### 使用示例
 ```tsx
+// 默认工具栏示例
+<MultiTree
+  treeList={data}
+  toolbarProps={{
+    zoomInText: "放大视图",
+    zoomOutText: "缩小视图", 
+    backCenterText: "重置视图"
+  }}
+/>
+
 // 自定义工具栏示例
 <MultiTree
   treeList={data}
@@ -159,10 +208,10 @@ interface MultiTreeToolbarProps<T extends ITreeData = ITreeData> {
     minZoom: 0.5,
     renderToolbar: ({ zoom, zoomIn, zoomOut, goBackCenter }) => (
       <div className="custom-toolbar">
-        <button onClick={zoomOut}>缩小</button>
+        <button onClick={zoomOut}>缩小视图</button>
         <span>{Math.round(zoom * 100)}%</span>
-        <button onClick={zoomIn}>放大</button>
-        <button onClick={goBackCenter}>重置</button>
+        <button onClick={zoomIn}>放大视图</button>
+        <button onClick={goBackCenter}>重置视图</button>
       </div>
     )
   }}

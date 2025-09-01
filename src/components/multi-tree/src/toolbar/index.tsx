@@ -3,11 +3,11 @@ import {isFunction} from 'lodash-es';
 import {
   classNames as cx,
 } from "@ohkit/prefix-classname";
-import {ITreeData,} from "../typing";
+import {ITreeNode,} from "../typing";
 import {type MultiTree, c} from "../";
 import './style.scss';
 
-export interface MultiTreeToolbarProps<T extends ITreeData = ITreeData> {
+export interface MultiTreeToolbarProps<T extends ITreeNode = ITreeNode> {
   className?: string;
   /**
    * 最大缩放倍数 默认1.25
@@ -21,6 +21,21 @@ export interface MultiTreeToolbarProps<T extends ITreeData = ITreeData> {
    * 每次放大或缩小的步长 默认0.25
    */
   zoomStep?: number;
+  /**
+   * 放大按钮文字
+   * @default '放大'
+   */
+  zoomInText?: string;
+  /**
+   * 缩小按钮文字
+   * @default '缩小'
+   */
+  zoomOutText?: string;
+  /**
+   * 返回至中心点按钮文字
+   * @default '返回中点'
+   */
+  backCenterText?: string;
   /**
    * 指向 MultiTree 组件的引用
    */
@@ -49,9 +64,9 @@ const defaultMultipleTreeToolbarProps = {
 };
 type DefaultMultiTreeToolbarProps = typeof defaultMultipleTreeToolbarProps;
 
-type TyMultiTreeToolbarProps<T extends ITreeData = ITreeData> = DefaultMultiTreeToolbarProps & MultiTreeToolbarProps<T>;
+type TyMultiTreeToolbarProps<T extends ITreeNode = ITreeNode> = DefaultMultiTreeToolbarProps & MultiTreeToolbarProps<T>;
 
-export class MultiTreeToolbar<T extends ITreeData = ITreeData> extends Component<MultiTreeToolbarProps<T>> {
+export class MultiTreeToolbar<T extends ITreeNode = ITreeNode> extends Component<MultiTreeToolbarProps<T>> {
     static defaultProps = defaultMultipleTreeToolbarProps;
 
     zoom = 1;
@@ -123,7 +138,7 @@ export class MultiTreeToolbar<T extends ITreeData = ITreeData> extends Component
         }
 
         // else default render
-        const {className, onClick} = this.props;
+        const {className, zoomInText = '放大', zoomOutText = '缩小', backCenterText = '返回中点', onClick} = this.props;
         const {zoom} = this.state;
         return (
             <div className={cx(c('toolbar-container'), className)} onClick={onClick}>
@@ -132,21 +147,21 @@ export class MultiTreeToolbar<T extends ITreeData = ITreeData> extends Component
                     className={c('zoom-control')}
                     onClick={this.handleZoomOut}
                     >
-                    缩小
+                    {zoomOutText}
                     </button>
                     <div className={c('zoom-size')}>{Math.round(zoom * 100)}%</div>
                     <button 
                     className={c('zoom-control')}
                     onClick={this.handleZoomIn}
                     >
-                    放大
+                    {zoomInText}
                     </button>
                     <div className={c('sep')}></div>
                     <button 
                     className={c('zoom-control')}
                     onClick={this.goBackCenter}
                     >
-                    回到中点
+                    {backCenterText}
                     </button>
                 </div>
             </div>

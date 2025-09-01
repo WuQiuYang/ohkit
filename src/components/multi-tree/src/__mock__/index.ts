@@ -142,6 +142,10 @@ function getEasyUniKey() {
 
 export const getZeroNineRange = () => Math.random() * 10 | 0; // 0 ~ 9
 
+const heightRange = [40, 60, 100, 150, 200];
+
+export const getNodeHeight = () => heightRange[Math.floor(getZeroNineRange() / 2)];
+
 export async function fetchChildren<T extends TyMockDataList[number] = TyMockDataList[number]>(node: T, direction: 'left' | 'right', injectProps = {}) {
       await new Promise(resolve => setTimeout(resolve, 800));
       const num = node[`${direction}Num`] || 0;

@@ -1,6 +1,6 @@
 import React, { Fragment, Component, createRef } from "react";
-import { sync as syncVisitTree, Context } from "@moyuyc/visit-tree";
 import { get, isNil, throttle, debounce } from "lodash-es";
+import {dfsTree, TreeContext} from "@ohkit/tree-helper";
 import {
   prefixClassname as p,
   classNames as cx,
@@ -13,10 +13,10 @@ import {
   scrollIntoViewIfNeeded,
 } from "@ohkit/dom-helper";
 import { MultiTreeToolbar } from "./toolbar";
-import { ITreeData, Position, Direction, MultiTreeProps, NodeWithTop } from "./typing";
+import { ITreeNode, Position, Direction, MultiTreeProps, NodeWithTop } from "./typing";
 import "./style.scss";
 
-
+export type { MultiTreeProps, ITreeNode } from './typing';
 export const c = p("ohkit-multi-tree__");
 
 function getEasyUniKey() {
@@ -28,7 +28,7 @@ const ShortLineWidth = 16; // default
 const ToggleBtnSize = 26; // 26
 const LineSize = 2; // 2
 
-function getDefaultProps<T extends ITreeData = ITreeData>() {
+function getDefaultProps<T extends ITreeNode = ITreeNode>() {
   return {
     treeList: [] as T[],
     height: 800, // 画布高
@@ -61,21 +61,21 @@ function getDefaultProps<T extends ITreeData = ITreeData>() {
   };
 }
 
-export type TyMultiTreeProps<T extends ITreeData = ITreeData> = MultiTreeProps<T> &
+export type TyMultiTreeProps<T extends ITreeNode = ITreeNode> = MultiTreeProps<T> &
   ReturnType<typeof getDefaultProps<T>>;
-export type TyState<T extends ITreeData = ITreeData> = {
+export type TyState<T extends ITreeNode = ITreeNode> = {
   renderSeq: number;
   treeList: T[];
 };
-export class MultiTree<T extends ITreeData = ITreeData> extends Component<
+export class MultiTree<T extends ITreeNode = ITreeNode> extends Component<
   MultiTreeProps<T>,
   TyState<T>
 > {
   static defaultProps = getDefaultProps() as Partial<MultiTreeProps>;
 
   static getDerivedStateFromProps(
-    nextProps: Readonly<MultiTreeProps<ITreeData>>,
-    prevState: TyState<ITreeData>
+    nextProps: Readonly<MultiTreeProps<ITreeNode>>,
+    prevState: TyState<ITreeNode>
   ) {
     if (nextProps.treeList !== prevState.treeList) {
       // console.log('---getDerivedStateFromProps treeChange---');
@@ -110,11 +110,11 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
   /**
    * 节点 dfs上下文 映射表
    */
-  nodeCtxWeakMap = new WeakMap<T, Context<T>>();
+  nodeCtxWeakMap = new WeakMap<T, TreeContext<T>>();
   getNodeCtx(node: T) {
     return this.nodeCtxWeakMap.get(node);
   }
-  setNodeCtx(node: T, ctx: Context<T>) {
+  setNodeCtx(node: T, ctx: TreeContext<T>) {
     this.nodeCtxWeakMap.set(node, ctx);
   }
 
@@ -492,7 +492,7 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
     const { height, width } = this.getLayoutOffset;
     const { getNodePosition, setNodePosition } = this;
 
-    syncVisitTree(
+    dfsTree(
       data,
       (node, ctx) => {
         // console.log(node, ctx, ':---visitTree before---');
@@ -795,7 +795,8 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
         }
       },
       {
-        path: path as string,
+        path,
+        needCtx: true
       }
     );
 
@@ -1047,9 +1048,9 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
     let height = 0;
 
     // 第一个真实节点
-    let firstRealNodeCenterTop = null;
+    let firstRealNodeCenterTop: number | null = null;
     // 最后一个真实节点
-    let lastRealNodeCenterTop = null;
+    let lastRealNodeCenterTop: number | null = null;
 
     for (let i = 0; i < nodeList.length; i++) {
       const node = nodeList[i];
@@ -1564,7 +1565,8 @@ export class MultiTree<T extends ITreeData = ITreeData> extends Component<
           width,
           height:
             halfHeight +
-            Math.min(halfHeight, topBottomLineRadius) +
+            // halfHeight - 1: 目的是冗余1px，避免由于浏览器差异导致出现缝隙
+            Math.min(halfHeight - 1, topBottomLineRadius) +
             treeTopSpan,
           offsetY: treeTopSpan,
         })}
