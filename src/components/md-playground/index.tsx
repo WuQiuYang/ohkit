@@ -61,12 +61,12 @@ export interface MDPlaygroundProps {
 export const MDPlayground: React.FC<MDPlaygroundProps> = (props) => {
     const {children, theme = 'vscDarkPlus'} = props;
     return <ReactMarkdown
-        children={children}
         remarkPlugins={[remarkGfm]}
         components={{
         code({
-            node,
-            // @ts-ignore ??
+            // node,
+            // eslint-disable-next-line
+            // @ts-ignore
             inline,
             className,
             children,
@@ -82,13 +82,15 @@ export const MDPlayground: React.FC<MDPlaygroundProps> = (props) => {
                 }
             }}>                
                 <SyntaxHighlighter
-                    children={String(children).replace(/\n$/, '')}
-                    // @ts-ignore ??=
-                    style={require(`react-syntax-highlighter/dist/esm/styles/prism`)[theme]}
+                    // eslint-disable-next-line
+                    // @ts-ignore
+                    style={require('react-syntax-highlighter/dist/esm/styles/prism')[theme]}
                     language={match[1]}
                     PreTag="div"
                     {...props}
-                />
+                >
+                {String(children).replace(/\n$/, '')}
+                </SyntaxHighlighter>
             </div>
             ) : (
             <code className={className} {...props}>
@@ -97,5 +99,7 @@ export const MDPlayground: React.FC<MDPlaygroundProps> = (props) => {
             )
         }
         }}
-    />
+    >
+        {children}
+    </ReactMarkdown>
 }
