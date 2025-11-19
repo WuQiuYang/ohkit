@@ -210,7 +210,7 @@ export const LazyLoading: Story = {
               background: "#f9f9f9",
               color: "#666",
               borderRadius: 2,
-              height: node._height_
+              minHeight: node._height_
             }}
           >
             {node.label} (虚线节点)
@@ -224,10 +224,15 @@ export const LazyLoading: Story = {
             background: "#e6f7ff",
             border: "1px solid #91d5ff",
             borderRadius: 2,
-            height: node._height_
+            minHeight: node._height_
           }}
         >
           {node.label}
+          <textarea
+            style={{resize: 'vertical'}}
+            placeholder="调整高度，使卡片高度变化..."
+            onMouseDown={e => e.stopPropagation()}
+          />   
         </div>
       );
     },

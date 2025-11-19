@@ -133,6 +133,11 @@ export interface MultiTreeProps<T extends ITreeNode = ITreeNode> {
   renderToolbar?: MultiTreeToolbarProps['renderToolbar'];
   /** 工具栏属性 */
   toolbarProps?: Omit<MultiTreeToolbarProps<T>, 'treeRef'>;
+  /** 
+   * 拖拽画布时，是否禁止 子节点鼠标事件阻止冒泡（即强制跟随拖拽）
+   * @default false
+   */
+  disableMouseEventStopPropagation?: boolean;
 }
 
 export interface NodeWithTop<T> {

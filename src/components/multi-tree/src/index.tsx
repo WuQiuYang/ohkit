@@ -58,6 +58,7 @@ function getDefaultProps<T extends ITreeNode = ITreeNode>() {
     openLeftKey: "openLeft" as keyof T, // 控制左树子节点是否展开 key
     openRightKey: "openRight" as keyof T, // 控制右树子节点是否展开 key
     virtualNodeKey: "isVirtual" as keyof T, // 标记节点是虚拟节点（与父节点虚线连接）
+    disableMouseEventStopPropagation: false
   };
 }
 
@@ -393,6 +394,7 @@ export class MultiTree<T extends ITreeNode = ITreeNode> extends Component<
       leftTreePath,
       rightTreePath,
       layoutBgColor,
+      disableMouseEventStopPropagation: disbleStopPropagation,
     } = this.props as Readonly<TyMultiTreeProps<T>>;
     this.treeBuildBefore();
     const treeNodeList: T[] = [];
@@ -417,32 +419,36 @@ export class MultiTree<T extends ITreeNode = ITreeNode> extends Component<
       treeNodeList.push(...leftTreeNodeList, ...rightTreeNodeList);
     });
     const treeDomList = treeNodeList.map((node) => this.renderNode(node));
+  
+    const treeLayoutProps: React.HTMLAttributes<HTMLDivElement> = {
+      style: {backgroundColor: layoutBgColor},
+      [disbleStopPropagation ? 'onMouseDownCapture' : 'onMouseDown']: (e: React.MouseEvent<HTMLDivElement>) => {
+        // 非右键 (这样反向判断不影响移动端)
+        if (e.button !== 2) {
+          // 捕获阶段 防止被阻止冒泡打断
+          const cDom = this.scrollWrapperRef.current;
+          if (!cDom) {
+            return;
+          }
+          Object.assign(this.runtime.moveStartPos, {
+            x: e.pageX,
+            y: e.pageY,
+            scrollTop: cDom.scrollTop,
+            scrollLeft: cDom.scrollLeft,
+          });
+          this.enableMoveAction();
+        }
+      },
+      onMouseMove: (e) => {
+        // 禁止浏览器默认行为：拖拽到边界时，滚动条会自动滚动
+        e.preventDefault();
+      }
+    };
     const result = (
       <div
-        style={{ backgroundColor: layoutBgColor }}
         className={c("tree-layout-wrapper")}
         ref={this.scrollWrapperRef}
-        onMouseDownCapture={(e) => {
-          // 非右键 (这样反向判断不影响移动端)
-          if (e.button !== 2) {
-            // 捕获阶段 防止被阻止冒泡打断
-            const cDom = this.scrollWrapperRef.current;
-            if (!cDom) {
-              return;
-            }
-            Object.assign(this.runtime.moveStartPos, {
-              x: e.pageX,
-              y: e.pageY,
-              scrollTop: cDom.scrollTop,
-              scrollLeft: cDom.scrollLeft,
-            });
-            this.enableMoveAction();
-          }
-        }}
-        onMouseMove={(e) => {
-          // 禁止浏览器默认行为：拖拽到边界时，滚动条会自动滚动
-          e.preventDefault();
-        }}
+        {...treeLayoutProps}
       >
         <div className={c("tree-layout")} ref={this.layoutRef}>
           {treeDomList}
@@ -970,7 +976,8 @@ export class MultiTree<T extends ITreeNode = ITreeNode> extends Component<
         if (this.runtime.moving) {
           cDom.scrollTo(scrollLeft - diffX, scrollTop - diffY);
         }
-      }, 50)
+      }, 50),
+      {capture: this.props.disableMouseEventStopPropagation}
     );
     this.moveEndRemover = addEventListener(
       document,
