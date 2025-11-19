@@ -11,3 +11,4 @@ export * from './get-offset-by';
 export * from './get-rect';
 export * from './scroll-into-view-if-needed';
 export * from './scroll-to';
+export * from './full-screen';
