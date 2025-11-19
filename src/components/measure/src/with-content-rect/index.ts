@@ -64,6 +64,11 @@ export interface WithContentRectProps extends IGetContentRectOptions {
      */
     onResize?: (contentRect: IContentRect) => void;
     /**
+     * 是否在组件挂载时立即触发一次 resize 事件，用于初始化尺寸信息。
+     * @default true
+     */
+    triggerResizeInit?: boolean;
+    /**
      * throttleMs ms 内只触发一次 resize 事件，防止高频触发 resize 事件导致性能问题
      * @default 200
      */
@@ -122,7 +127,7 @@ export function withContentRect(types?: IGetContentRectOptions) {
             if (this._node !== null) {
                 this._resizeObserver.observe(this._node);
 
-                if (typeof this.props.onResize === 'function') {
+                if (this.props.triggerResizeInit && typeof this.props.onResize === 'function') {
                     this.props.onResize(getContentRect(this._node, types || this.props));
                 }
             }

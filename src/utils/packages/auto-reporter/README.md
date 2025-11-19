@@ -32,6 +32,9 @@ reporter.change();
 reporter.flush();
 ```
 
+## 详见示例
+- [更多Demo](https://wuqiuyang.github.io/ohkit/storybook-static/?path=/story/utils-packages-auto-reporter-src)
+
 ## 配置参数
 
 | 参数 | 说明 | 类型 | 默认值 |

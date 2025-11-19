@@ -1,5 +1,5 @@
 {
   "extends": "../../tsconfig.json",
   "include": ["src", "Doc.mdx"],
-  "exclude": ["**/__tests__/**", "dist", "node_modules"]
+  "exclude": ["**/__tests__/**", "dist", "**/*.stories.*", "node_modules"]
 }

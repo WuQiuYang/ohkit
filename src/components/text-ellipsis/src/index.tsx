@@ -25,7 +25,8 @@ import {
   useSyncPropsState,
 } from "@ohkit/react-helper";
 import {isSafari} from "@ohkit/platform";
-import {Measure} from "@ohkit/measure";
+import {rgbaToObj, findEffectiveBgColor} from "@ohkit/dom-helper";
+import {Measure, MeasureProps} from "@ohkit/measure";
 import "./style.scss";
 
 export const c = p("ohkit-text-ellipsis__");
@@ -103,7 +104,7 @@ interface ITextEllipsis
    */
   controlPlacement?: 'left' | 'center' | 'right';
   /**
-   * 展开按钮文字
+   * 折叠按钮文字
    * @default 收起
    */
   foldText?: string;
@@ -161,7 +162,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     style,
     lineHeight = "",
     lines,
-    maskBgColor = "#fff",
+    maskBgColor,
     content,
     children,
     resetFoldWhenChildrenOrEllipsisChange = false,
@@ -214,7 +215,8 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     textContent,
     onEllipsisChange,
     onFoldChange,
-  }, ['onEllipsisChange', 'fold', 'onFoldChange']);
+    onStatusChange,
+  }, ['fold', 'onEllipsisChange', 'onFoldChange', 'onStatusChange']);
 
   const contentRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -235,7 +237,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
       whiteSpace,
       width,
     };
-  }, [whiteSpace, width])
+  }, [whiteSpace, width]);
   // 容器样式
   const wrapStyle = useMemo(() => {
     const lines = innerLines;
@@ -243,7 +245,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     if (!ellipsis || !isHeightMode && (!lines || !innerLineHeight)) {
       return commonWrapStyle;
     }
-    const paddingBottom = showFoldControl && (uiType === "bottom" || !fold) ? `${innerLineHeight}px` : undefined;
+    const paddingBottom = showFoldControl && (uiType === "bottom" && !fold) ? `${innerLineHeight}px` : undefined;
     return {
       ...commonWrapStyle,
       // HACK: 兼容safari 15+ 富文本折叠高度丢失问题
@@ -258,6 +260,18 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     };
   }, [innerLines, innerLineHeight, ellipsis, fold, showFoldControl, uiType, truncateMode, maxHeight, commonWrapStyle]);
 
+  // 计算折叠按钮蒙层的渐变颜色
+  const validMaskBgColor = useMemo(() => {
+    if (!showFoldControl || !ellipsis) {
+      return null;
+    }
+    const {r, g, b} = rgbaToObj(maskBgColor || '') || findEffectiveBgColor(containerRef.current);
+    return {
+      startColor: `rgba(${r}, ${g}, ${b}, 0.2)`,
+      endColor: `rgba(${r}, ${g}, ${b}, 1)`,
+    };
+  }, [maskBgColor, ellipsis, showFoldControl]);
+
   // 展开｜收起 按钮样式
   const btnStyle = useMemo(() => {
     if (!fold) {
@@ -267,10 +281,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     const padding = innerLineHeight;
     // 蒙层透明度所占比例
     const ratio = uiType === "right" ? Math.min((padding / foldBtnWidth) * 100, 80) : 60;
-    // 16进制透明色(考虑简写方式), 不直接使用css的transparent是因为safari的表现是灰色
-    const transparent = `${maskBgColor}${
-      maskBgColor.length === 4 ? "0" : "00"
-    }`;
+    const {startColor = 'rgba(255,255,255,0.2)', endColor = 'rgba(255,255,255,1)'} = validMaskBgColor || {};
     return {
       boxSizing: 'content-box' as const,
       height: `${innerLineHeight}px`,
@@ -278,9 +289,9 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
       paddingTop: uiType === "bottom" ? `${padding}px` : undefined,
       paddingLeft: uiType === "right" ? `${padding}px` : undefined,
       // 渐变蒙层
-      background: `linear-gradient(to ${uiType}, ${transparent}, ${maskBgColor} ${ratio}%, ${maskBgColor} 100%)`,
+      background: `linear-gradient(to ${uiType}, ${startColor}, ${endColor} ${ratio}%, ${endColor} 100%)`,
     };
-  }, [innerLineHeight, maskBgColor, fold, uiType, foldBtnWidth]);
+  }, [innerLineHeight, fold, uiType, foldBtnWidth, validMaskBgColor]);
 
   const reorganizeDom = useCallback(() => {
     // Note: safari 中仅改变 WebkitLineClamp 没触发重排，调整微小宽度以触发
@@ -332,6 +343,16 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     uiType,
     unfoldText,
   ]);
+
+  // 占位按钮
+  const ButtonShadowDom = useMemo(() => {
+    if (!showFoldControl || uiType !== 'right' || fold) {
+      return null;
+    }
+    return <span style={btnStyle} className="btn-fold-right-shadow">
+      {renderFoldButton ? renderFoldButton(fold) : foldText}
+    </span>;
+  }, [uiType, showFoldControl, fold, btnStyle, foldText, renderFoldButton]);
 
   // 重置状态
   const resetState = useCallback((newEllipsis = runtime.ellipsis, {
@@ -439,12 +460,22 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
     }
   }, [fold, reorganizeDom]);
   const updateTextContent = useCallback(() => {
-    const newTextContent = wrapperRef.current?.textContent || '';
+    if (!wrapperRef.current) {
+      return;
+    }
+    const newTextContent = wrapperRef.current.textContent || '';
     if (newTextContent !== runtime.textContent) {
       runtime.textContent = newTextContent;
       setTextContent(newTextContent);
     }
   }, []);
+  const handleResize = useCallback<NonNullable<MeasureProps['onResize']>>((rect) => {
+    // console.log('[handleResize] rect: ', rect, runtime.contentOffsetHeight);
+    const {height} = rect.offset || {};
+    if (height !== undefined && Math.abs(height - runtime.contentOffsetHeight) > 1) {
+      calcEllipsis();
+    }
+  }, [calcEllipsis]);
   const hoverTitle = useMemo(() => {
       return ellipsis && fold
         ? (typeof titleWhenFold === 'function'
@@ -454,13 +485,13 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
   }, [titleWhenFold, ellipsis, fold, textContent]);
   useEffect(() => {
     if (runtime.inited) {      
-      onStatusChange?.({
+      runtime.onStatusChange?.({
           ellipsis,
           fold,
           title: hoverTitle
       });
     }
-  }, [onStatusChange, fold, ellipsis, hoverTitle]);
+  }, [fold, ellipsis, hoverTitle]);
   useEffect(() => {
     runtime.inited = true;
   }, []);
@@ -485,13 +516,13 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
       onFocus={onFocus}
     >
       {/* 此dom仅用于计算高度 用.text-ellipsis-inner计算 在不重新初始化情况下切换文本时高度计算有问题 */}
-      <Measure offset>
-        {({measureRef, contentRect}) => {
-          // console.log('contentRect:', contentRect.offset?.height, runtime.contentOffsetHeight);
-          const {height} = contentRect.offset || {};
-          if (height !== undefined && Math.abs(height - runtime.contentOffsetHeight) > 1) {
-            calcEllipsis();
-          }
+      <Measure offset throttleMs={100} onResize={handleResize} triggerResizeInit={false}>
+        {({measureRef, /* contentRect */}) => {
+          // console.log('contentRect:', contentRect, contentRect.offset?.height, runtime.contentOffsetHeight);
+          // const {height} = contentRect.offset || {};
+          // if (height !== undefined && Math.abs(height - runtime.contentOffsetHeight) > 1) {
+          //   calcEllipsis();
+          // }
           return <div style={commonWrapStyle} className={"content-shadow-dom"} ref={(r) => {
             assignRef(measureRef, r);
             assignRef(wrapperRef, r);
@@ -501,7 +532,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
           </div>
         }}
       </Measure>
-      {/* <div className={"content-shadow-dom"} ref={wrapperRef}>
+      {/* <div style={commonWrapStyle} className={"content-shadow-dom"} ref={wrapperRef}>
           {finalContent}
       </div> */}
       {/* 主文本显示 */}
@@ -515,6 +546,7 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
         {/* firefox >= 133 绝对定位的按钮放文本后面也会被截断隐藏！！ , 放文本前面可解决 */}
         {ellipsis && showFoldControl && ButtonComp}
         {finalContent}
+        {ButtonShadowDom}
       </div>
     </div>
   );

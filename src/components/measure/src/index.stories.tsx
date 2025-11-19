@@ -124,11 +124,9 @@ export const Position: Story = {
       const {top, left, right, bottom} = position || {};
       return (
         <div>
-          <h3>{"调整窗口大小至出现滚动条并滚动页面查看效果："}</h3>
-          <div ref={measureRef} style={{ backgroundColor: "purple", maxHeight: "100px", maxWidth: "80%", overflow: "auto" }}>
-            <div style={{ minWidth: "400px" }}>{text}</div>
-          </div>
-          <div>{`scroll size  =>  top: ${top}px, left: ${left}px, bottom: ${bottom}px, right: ${right}px`}</div>
+          <h3>{"调整窗口大小查看效果："}</h3>
+          <div ref={measureRef} style={{ backgroundColor: 'burlywood' }}>{text}</div>
+          <div>{`position size  =>  top: ${top}px, left: ${left}px, bottom: ${bottom}px, right: ${right}px`}</div>
         </div>
       );
     },

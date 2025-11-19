@@ -46,3 +46,6 @@ next-env.d.ts
 dist
 lib
 output
+
+# custom
+_share-to-team

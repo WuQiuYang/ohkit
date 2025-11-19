@@ -10,5 +10,14 @@
   ],
   "publish": {
     "registry": "https://registry.npmjs.org"
-  }
+  },
+  "ignoreChanges": [
+    "**/*.stories.*",
+    "**/*.test.*",
+    "**/__test__/**",
+    "**/__tests__/**",
+    "**/__mock__/**",
+    "**/*.md",
+    "**/*.mdx"
+  ]
 }

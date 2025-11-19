@@ -1,0 +1,193 @@
+$prefix: ohkit;
+$dashed-v-line-z-index: 1;
+$v-line-z-index: 2;
+$line-mask-z-index: 3;
+$h-line-z-index: 4;
+$toggle-btn-z-index: 5;
+$toggle-border-width: 2px;
+$primary-color: #4c84ff;
+
+.#{$prefix}-multi-tree__ {
+    // main multi tree region
+    &container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        * {
+          box-sizing: border-box;
+        }
+    }
+    
+    &tree-layout-wrapper {
+        width: 100%;
+        height: 100%;
+        cursor: grab;
+        overflow: auto;
+        user-select: none; // 避免划选行为和画布拖拽行为冲突（划选至滚动区边缘区时，会触发滚动行为）
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+    
+    &tree-layout {
+        transform-origin: center left;
+        position: relative;
+    }
+    
+    &translate-animate {
+        transition: translateX 0.2s ease, scale 0.2s ease;
+    }
+    
+    &card {
+        position: absolute;
+        z-index: $h-line-z-index + 1;
+        will-change: top, left;
+
+        .loading-icon {
+            display: none;
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            border-radius: 50%;
+            background-color: #fff;
+            background-image: url('./mini-loading.gif');
+            background-position: center;
+            background-size: 14px;
+            background-repeat: no-repeat;
+        }
+        
+        &.loading-left-child-tree {
+            .left-loading {
+                display: block;
+            }
+        }
+        
+        &.loading-right-child-tree {
+            .right-loading {
+                display: block;
+            }
+        }
+    }
+    
+    &card-content {
+        position: relative;
+    }
+    
+    &toggle-btn {
+        z-index: $toggle-btn-z-index;
+        position: absolute;
+        top: 0;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        border: $toggle-border-width solid transparent;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 14px;
+        color: #848fa7;
+        background-color: #fff;
+        
+        &:hover {
+            color: $primary-color;
+            box-shadow: 0 1px 14px rgba(31, 35, 41, 0.2);
+        }
+        
+        &.has-virtual {
+            border-color: #f27c49;
+        }
+        
+        .icon-fold {
+            width: 8px;
+            height: 2px;
+            border-radius: 1px;
+            background-color: #8490a7;
+        }
+    }
+
+    &d-card {
+        position: relative;
+        z-index: $h-line-z-index + 1;
+        background-color: #cfd5df;
+    }
+
+    @mixin h-line-css {
+        position: absolute;
+        z-index: $h-line-z-index;
+        will-change: top;
+    }
+    
+    &short-line {
+        @include h-line-css;
+        top: 0;
+        
+        &.dashed-line {
+            border-top-style: dashed;
+        }
+    }
+    
+    &horizontal-line {
+        @include h-line-css;
+        
+        &-right {
+            &.dashed-line {
+                border-right-style: dashed;
+            }
+        }
+
+        &-left {
+            &.dashed-line {
+                border-left-style: dashed;
+            }
+        }
+
+        &.middle-line {
+            top: 50%;
+            &.dashed-line {
+                border-top-style: dashed;
+            }
+        }
+
+        &.top-line {
+            will-change: height;
+            &.dashed-line {
+                border-top-style: dashed;
+            }
+        }
+
+        &.bottom-line {
+            will-change: height;
+            &.dashed-line {
+                border-bottom-style: dashed;
+            }
+        }
+    }
+
+    @mixin v-line-css {
+        position: absolute;
+    }
+    
+    &vertical-line {
+        @include v-line-css;
+        border-left-style: solid;
+        z-index: $v-line-z-index;
+    }
+    
+    &vertical-line-dashed {
+        @include v-line-css;
+        border-left-style: dashed;
+        z-index: $dashed-v-line-z-index;
+        transform: translateY(-50%);
+    }
+
+    &btn-line-wrapper {
+        position: absolute;
+    }
+
+    &top-bottom-line-mask {
+        position: absolute;
+        z-index: $line-mask-z-index;
+        will-change: height;
+    }
+}
