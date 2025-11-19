@@ -12,10 +12,10 @@ export class Debug {
     constructor(option: DebugOptions = {}) {
         this._option = option;
     }
-    private _option: DebugOptions = {};
+    private readonly _option: DebugOptions = {};
     private get _prefix() {
         return this._option.prefix || '';
-    };
+    }
     /**
      * 打印日志信息
      *
@@ -24,19 +24,19 @@ export class Debug {
      */
     print = (type: LogType = 'log', ...arg: PrintParams) => {
         console[type]?.(`*** ${this._prefix} *** : `, ...arg);
-    }
+    };
 
     log = (...arg: PrintParams) => {
         this.print('log', ...arg);
-    }
+    };
 
     warn = (...arg: PrintParams) => {
         this.print('warn', ...arg);
-    }
+    };
 
     error = (...arg: PrintParams) => {
         this.print('error', ...arg);
-    }
+    };
 
     /**
      * 为当前实例添加前缀
@@ -46,5 +46,5 @@ export class Debug {
      */
     addPrefix = (prefix: string) => {
         return new Debug({...this._option, prefix: this._prefix + '->' + prefix});
-    }
+    };
 }
