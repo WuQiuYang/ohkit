@@ -156,7 +156,7 @@ interface ITextEllipsis
 
 export type TextEllipsisProps = PropsWithChildren<ITextEllipsis>;
 
-export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props, ref) => {
+export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>(function TextEllipsis(props, ref) {
   const {
     className,
     style,
@@ -346,13 +346,13 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
 
   // 占位按钮
   const ButtonShadowDom = useMemo(() => {
-    if (!showFoldControl || uiType !== 'right' || fold) {
+    if (!ellipsis || !showFoldControl || uiType !== 'right' || fold) {
       return null;
     }
     return <span style={btnStyle} className="btn-fold-right-shadow">
       {renderFoldButton ? renderFoldButton(fold) : foldText}
     </span>;
-  }, [uiType, showFoldControl, fold, btnStyle, foldText, renderFoldButton]);
+  }, [ellipsis, uiType, showFoldControl, fold, btnStyle, foldText, renderFoldButton]);
 
   // 重置状态
   const resetState = useCallback((newEllipsis = runtime.ellipsis, {
@@ -506,7 +506,9 @@ export const TextEllipsis = forwardRef<HTMLDivElement, TextEllipsisProps>((props
       style={containerStyle}
       ref={(r) => {
         assignRef(containerRef, r);
-        ref && assignRef(ref, r);
+        if (ref) {
+          assignRef(ref, r);
+        }
       }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
