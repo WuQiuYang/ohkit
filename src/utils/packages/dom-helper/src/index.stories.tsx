@@ -24,6 +24,9 @@ const DomHelperDemo = (props: DomHelperProps) => {
       <h4>Fullscreen:</h4>
       <h5>launchFullscreen / exitFullscreen</h5>
       <div>
+        <a href={window.location.href} target="_blank">若iframe中无法拉起全屏，请点击打开新窗口进行测试</a>
+      </div>
+      <div>
         <button
           onClick={() =>
             launchFullscreen({
