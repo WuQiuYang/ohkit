@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/react-iframe",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "iframe封装，replace变更src，避免干扰主页面history",
   "keywords": [
     "react-iframe"
