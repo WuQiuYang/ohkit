@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`ReactIframe renders correctly with basic props 1`] = `
+<div
+  class="ohkit-react-iframe__container"
+  title="加载中..."
+>
+  <span
+    class="ohkit-react-iframe__loading"
+  >
+    加载中...
+  </span>
+  <iframe
+    frameborder="0"
+    height="100%"
+    src="https://example.com"
+    width="100%"
+  >
+    你的浏览器不支持iframe
+  </iframe>
+</div>
+`;
