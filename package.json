@@ -19,14 +19,16 @@
     "build:lerna": "lerna run build --no-private",
     "lerna:bootstrap": "lerna bootstrap -- --legacy-peer-deps",
     "lerna:publish": "npm run test && lerna publish --no-private --exact --registry=https://registry.npmjs.org/",
-    "lerna:release": "npm run build:lerna && npm run lerna:publish",
+    "lerna:release": "npm run update:internal-deps && npm run lerna:bootstrap && npm run build:lerna && npm run lerna:publish",
     "lerna:clean": "lerna run clean && lerna clean",
+    "update:internal-deps": "node scripts/update-internal-deps.js --caret",
+    "update:internal-deps:dry": "node scripts/update-internal-deps.js --caret --dry-run",
     "plop": "cross-env NODE_OPTIONS='--import tsx' plop --plopfile=.plop/index.ts",
     "i": "node ./scripts/install-deps.js",
     "i-d": "node ./scripts/install-deps.js -D"
   },
   "dependencies": {
-    "@ohkit/text-ellipsis": "^0.0.9",
+    "@ohkit/text-ellipsis": "^0.0.13",
     "framer-motion": "^11.15.0",
     "lodash-es": "^4.17.21",
     "next": "15.0.4",

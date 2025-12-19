@@ -27,6 +27,6 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ohkit/async": "0.0.3"
+    "@ohkit/async": "^0.0.4"
   }
 }

@@ -33,7 +33,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ohkit/async": "0.0.3",
+    "@ohkit/async": "^0.0.4",
     "@ohkit/auto-reporter": "0.0.6",
     "@ohkit/debug": "0.0.4",
     "@ohkit/dom-helper": "0.0.3",
