@@ -7,8 +7,17 @@ import findScrollContainer from './find-scroll-container';
  */
 
 export const VIEW_TYPES = {
+    /**
+     * 完全包含在视口中
+     */
     CONTAIN: 'contain',
+    /**
+     * 部分重叠在视口中
+     */
     INTERSECTION: 'intersection',
+    /**
+     * 完全不重叠在视口中
+     */
     PARALLEL: 'parallel'
 } as const;
 
