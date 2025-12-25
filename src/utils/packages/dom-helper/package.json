@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/dom-helper",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "html dom 操作相关工具函数",
   "keywords": [
     "dom-helper"
