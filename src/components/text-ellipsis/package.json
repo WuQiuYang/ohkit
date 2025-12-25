@@ -1,12 +1,12 @@
 {
   "name": "@ohkit/text-ellipsis",
-  "version": "0.0.12",
+  "version": "0.0.15",
   "description": "text ellipsis for react",
   "keywords": [
     "text ellipsis"
   ],
   "author": "wuqiuyang <wuqiuyang305@126.com>",
-  "homepage": "",
+  "homepage": "https://wuqiuyang.github.io/ohkit/storybook-static",
   "license": "ISC",
   "source": "src/index.@(js|jsx|mjs|ts|tsx)",
   "main": "dist/index.js",
@@ -32,7 +32,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ohkit/dom-helper": "0.0.3",
+    "@ohkit/dom-helper": "0.0.4",
     "@ohkit/measure": "0.0.6",
     "@ohkit/platform": "0.0.3",
     "@ohkit/prefix-classname": "0.0.3",
@@ -46,5 +46,5 @@
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"
   },
-  "gitHead": "3d62d95c06d9a8e0e52d68c924960e3b48d82238"
+  "gitHead": "17d049a45706bde5b479e8f05263f354b98d5024"
 }

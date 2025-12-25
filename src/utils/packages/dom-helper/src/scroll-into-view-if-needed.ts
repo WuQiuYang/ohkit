@@ -1,5 +1,5 @@
 import findScrollContainer from './find-scroll-container';
-import { getInViewTypeBy, VIEW_TYPES } from './get-in-view-type-by';
+import {getInViewTypeBy, VIEW_TYPES} from './get-in-view-type-by';
 import {scrollTo} from './scroll-to';
 
 interface ScrollOptions {
@@ -8,16 +8,55 @@ interface ScrollOptions {
     offsetLeft?: number;
     offsetBottom?: number;
     offsetRight?: number;
+    /**
+     * 'auto' 自动 就近规则, y轴offset基于 top | bottom
+     * @default 'auto'
+     */
     baseOffsetY?: 'auto' | 'top' | 'bottom';
+    /**
+     * 'auto' 自动 就近规则, x轴offset基于 left | right
+     * @default 'auto'
+     */
     baseOffsetX?: 'auto' | 'left' | 'right';
+    /**
+     * X方向定位
+     * @default true
+     */
     allowScrollLeft?: boolean;
+    /**
+     * Y方向定位
+     * @default true
+     */
     allowScrollTop?: boolean;
+    /**
+     * y方向强制滚动， 无视元素此时是否已可见
+     * @default false
+     */
     forceScrollY?: boolean;
+    /**
+     * x方向强制滚动， 无视元素此时是否已可见
+     * @default false
+     */
     forceScrollX?: boolean;
+    /**
+     * 是否将滚动容器也滚动到视口内
+     */
     scrollParentNeedIntoView?: boolean;
+    /**
+     * 外部指定Y方向滚动容器
+     */
     scrollYContainer?: HTMLElement;
+    /**
+     * 外部指定X方向滚动容器
+     */
     scrollXContainer?: HTMLElement;
+    /**
+     * 外部指定滚动容器，不区分X，Y
+     */
     scroller?: HTMLElement;
+    /**
+     * 是否寻找父级真实能滚动的滚动容器
+     */
     realScroll?: boolean;
 }
 
@@ -79,7 +118,7 @@ export function scrollIntoViewIfNeeded(
 
     function scrollIfNeed(
         el: HTMLElement | Range,
-        scroller?: HTMLElement,
+        scroller?: HTMLElement | null,
         {allowScrollLeft = true, allowScrollTop = true}: ScrollIfNeedOptions = {}
     ) {
         if (!el || !scroller) {
@@ -92,8 +131,8 @@ export function scrollIntoViewIfNeeded(
 
         // todo：scroller 可见 后，但 el 还是隐藏了怎么办
         // 让 scroller 可见
-        scrollParentNeedIntoView
-            && scrollIntoViewIfNeeded(scroller, {
+        if (scrollParentNeedIntoView) {
+            scrollIntoViewIfNeeded(scroller, {
                 behavior,
                 offsetTop,
                 offsetRight,
@@ -105,6 +144,7 @@ export function scrollIntoViewIfNeeded(
                 allowScrollTop,
                 realScroll
             });
+        }
 
         const {xType, yType, elOffset, byRect} = getInViewTypeBy(el, scroller);
 

@@ -21,8 +21,12 @@ interface CustomSmoothScrollOptions {
  */
 export function scrollTo(scroller: HTMLElement, {top, left, behavior}: ScrollToOptions = {}): void {
     const fallbackScroll = () => {
-        typeof left !== 'undefined' && (scroller.scrollLeft = left);
-        typeof top !== 'undefined' && (scroller.scrollTop = top);
+        if (typeof left !== 'undefined') {
+            scroller.scrollLeft = left;
+        };
+        if (typeof top !== 'undefined') {
+            scroller.scrollTop = top;
+        }
     };
 
     if (typeof scroller.scroll === 'function') {
@@ -79,8 +83,12 @@ export function customSmoothScroll(scroller: HTMLElement, opt: CustomSmoothScrol
                 const opt: ScrollToOptions = {
                     behavior: 'instant' as ScrollBehavior
                 };
-                needMoveTop && (opt.top = preTickTop);
-                needMoveLeft && (opt.left = preTickLeft);
+                if (needMoveTop)  {
+                    opt.top = preTickTop;
+                }
+                if (needMoveLeft)  {
+                    opt.left = preTickLeft;
+                }
                 scroller.scroll(opt);
                 // console.log(scroller.scrollTop, '=>', top, ';', scroller.scrollLeft, '=>', left, scroller, 'scroll to target with smooth animation, scroller');
                 // scroll的smooth效果会被打断，使用requestAnimationFrame模拟smooth动画
@@ -89,7 +97,7 @@ export function customSmoothScroll(scroller: HTMLElement, opt: CustomSmoothScrol
                 });
             } else {
                 // console.log('scroll animation end');
-                onAnimationEnd && onAnimationEnd();
+                onAnimationEnd?.();
             }
         };
         runner();

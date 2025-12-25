@@ -3,7 +3,9 @@
   "version": "0.0.1-beta.0",
   "private": true,
   "description": "sse 请求的流式响应数据处理工具",
-  "keywords": ["sse"],
+  "keywords": [
+    "sse"
+  ],
   "homepage": "",
   "license": "ISC",
   "source": "src/index.@(js|jsx|mjs|ts|tsx)",
@@ -26,10 +28,6 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ohkit/json-helper": "^0.0.1-beta.0"
-  },
-  "devDependencies": {
-  },
-  "peerDependencies": {
+    "@ohkit/json-helper": "^0.0.4"
   }
 }

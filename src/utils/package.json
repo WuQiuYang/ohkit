@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/utils",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "some utils",
   "keywords": [
     "@ohkit",
@@ -33,10 +33,10 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ohkit/async": "0.0.3",
-    "@ohkit/auto-reporter": "0.0.6",
+    "@ohkit/async": "0.0.5",
+    "@ohkit/auto-reporter": "0.0.7",
     "@ohkit/debug": "0.0.4",
-    "@ohkit/dom-helper": "0.0.3",
+    "@ohkit/dom-helper": "0.0.4",
     "@ohkit/json-helper": "0.0.4",
     "@ohkit/platform": "0.0.3",
     "@ohkit/prefix-classname": "0.0.3",
