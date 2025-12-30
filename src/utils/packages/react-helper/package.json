@@ -27,6 +27,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@ohkit/dom-helper": "^0.0.4",
     "@ohkit/platform": "0.0.3"
   },
   "peerDependencies": {
