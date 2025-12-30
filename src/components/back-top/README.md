@@ -44,7 +44,7 @@ function CustomContainer() {
         </div>
       </div>
       <BackTop 
-        scrollRefDom={scrollContainerRef}
+        scrollDomRef={scrollContainerRef}
         mountType="absolute"
       />
     </section>
@@ -67,7 +67,7 @@ function CustomContainer() {
 | children | ReactNode | '↑' | 按钮内容，支持React节点 |
 | mountType | 'fixed' \| 'absolute' | 'fixed' | 按钮定位方式 |
 | scrollTop | number | 500 | 显示按钮的滚动阈值（像素） |
-| scrollRefDom | React.RefObject<HTMLElement> | - | 自定义滚动容器 |
+| scrollDomRef | React.RefObject<HTMLElement> | - | 自定义滚动容器 |
 | position | 'top-right' \| 'top-left' \| 'bottom-right' \| 'bottom-left' | 'bottom-right' | 按钮位置 |
 | offset | [number, number] | [50, 100] | 按钮偏移量 [top/bottom, left/right] |
 | realScroll | boolean | false | 是否查找真实可滚动容器 |

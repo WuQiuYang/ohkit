@@ -22,7 +22,10 @@ export interface IBackTop {
    * @default 500
    */
   scrollTop?: number;
-  scrollRefDom?: React.MutableRefObject<HTMLElement>;
+  /**
+   * 滚动容器，当 scrollDomRef 为空时，自动查找 BackTop 组件所属的滚动容器
+   */
+  scrollDomRef?: React.RefObject<HTMLElement>;
   /**
    * 按钮位置，top-right 或 top-left 或 bottom-right 或 bottom-left
    * @default "bottom-right"
@@ -55,7 +58,7 @@ export const BackTop = ({
   position = "bottom-right",
   offset = [50, 100],
   title = "返回顶部",
-  scrollRefDom,
+  scrollDomRef,
   realScroll = false,
 }: BackTopProps) => {
   const [visible, setVisible] = useState(false);
@@ -68,7 +71,7 @@ export const BackTop = ({
     scrollListenerRemover: null,
   });
 
-  const scrollEntry = useScrollEntry(scrollRefDom ? scrollRefDom : domRef, {
+  const scrollEntry = useScrollEntry(scrollDomRef ? scrollDomRef : domRef, {
     realScroll,
     autoFind: true,
     intervalTime: 3000,
