@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/react-helper",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "some utils and hooks for react",
   "keywords": [
     "react-helper"
@@ -27,7 +27,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ohkit/dom-helper": "^0.0.4",
+    "@ohkit/dom-helper": "0.0.5",
     "@ohkit/platform": "0.0.3"
   },
   "peerDependencies": {
