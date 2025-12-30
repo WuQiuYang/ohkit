@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/back-top",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "列表滚动超过指定距离后自动展示返回顶部按钮",
   "keywords": [
     "back-top"
