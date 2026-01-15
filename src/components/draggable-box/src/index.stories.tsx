@@ -61,3 +61,37 @@ export const LockHorizontal: Story = {
     boundsX: [100, 500],
   },
 };
+
+export const XAxisSingleBound: Story = {
+  args: {
+    children: 'X轴单边限制：只有最小边界',
+    placement: 'bottom-right',
+    boundsX: [100, undefined], // 只有minBound
+  },
+};
+
+export const YAxisSingleBound: Story = {
+  args: {
+    children: 'Y轴单边限制：只有最大边界',
+    placement: 'bottom-right',
+    boundsY: [undefined, 50], // 只有maxBound
+  },
+};
+
+export const MixedSingleBounds: Story = {
+  args: {
+    children: '混合单边限制',
+    placement: 'bottom-right',
+    boundsX: [100, undefined], // X轴只有minBound
+    boundsY: [undefined, 30],  // Y轴只有maxBound
+  },
+};
+
+export const TopLeftSingleBounds: Story = {
+  args: {
+    children: 'Top-Left单边限制',
+    placement: 'top-left',
+    boundsX: [50, undefined], // X轴只有minBound
+    boundsY: [undefined, 100], // Y轴只有maxBound
+  },
+};

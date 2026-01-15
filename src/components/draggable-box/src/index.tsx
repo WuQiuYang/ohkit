@@ -84,19 +84,12 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         const [placementY, placementX] = placement.split('-') as ['top' | 'bottom', 'left' | 'right'];
         
         // 简化状态初始化
-        this.state = {};
-        
-        if (placementY === 'top') {
-            this.state.top = offsetY;
-        } else {
-            this.state.bottom = offsetY;
-        }
-        
-        if (placementX === 'left') {
-            this.state.left = offsetX;
-        } else {
-            this.state.right = offsetX;
-        }
+        this.state = {
+            top: placementY === 'top' ? offsetY : undefined,
+            bottom: placementY === 'bottom' ? offsetY : undefined,
+            left: placementX === 'left' ? offsetX : undefined,
+            right: placementX === 'right' ? offsetX : undefined,
+        };
     }
 
     getOtherYKey(yKey: 'top' | 'bottom') {
@@ -162,8 +155,16 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
             } else {
                 // 右边位置：boundsX=[右边最小距离, 右边最大距离]
                 // 直接使用边界值作为right的限制
-                if (minBound !== undefined) minX = Math.max(minX, windowSize.width - maxBound - dragSize.width);
-                if (maxBound !== undefined) maxX = Math.min(maxX, windowSize.width - minBound - dragSize.width);
+                if (minBound !== undefined && maxBound !== undefined) {
+                    minX = Math.max(minX, windowSize.width - maxBound - dragSize.width);
+                    maxX = Math.min(maxX, windowSize.width - minBound - dragSize.width);
+                } else if (minBound !== undefined) {
+                    // 只有minBound：设置最大边界，最小边界保持默认
+                    maxX = Math.min(maxX, windowSize.width - minBound - dragSize.width);
+                } else if (maxBound !== undefined) {
+                    // 只有maxBound：设置最小边界，最大边界保持默认
+                    minX = Math.max(minX, windowSize.width - maxBound - dragSize.width);
+                }
                 
                 // 确保最小边界不大于最大边界
                 if (minX > maxX) {
@@ -183,8 +184,16 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
             } else {
                 // 底部位置：boundsY=[底边最小距离, 底边最大距离]
                 // 直接使用边界值作为bottom的限制
-                if (minBound !== undefined) minY = Math.max(minY, windowSize.height - maxBound - dragSize.height);
-                if (maxBound !== undefined) maxY = Math.min(maxY, windowSize.height - minBound - dragSize.height);
+                if (minBound !== undefined && maxBound !== undefined) {
+                    minY = Math.max(minY, windowSize.height - maxBound - dragSize.height);
+                    maxY = Math.min(maxY, windowSize.height - minBound - dragSize.height);
+                } else if (minBound !== undefined) {
+                    // 只有minBound：设置最大边界，最小边界保持默认
+                    maxY = Math.min(maxY, windowSize.height - minBound - dragSize.height);
+                } else if (maxBound !== undefined) {
+                    // 只有maxBound：设置最小边界，最大边界保持默认
+                    minY = Math.max(minY, windowSize.height - maxBound - dragSize.height);
+                }
                 
                 // 确保最小边界不大于最大边界
                 if (minY > maxY) {
@@ -256,7 +265,7 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
     enableDrag = () => {
         this.reportStartPosition();
         this.__moveDisposer?.();
-        this.__moveDisposer = addEventListener(document, 'mousemove', (evt: MouseEvent) => {
+        this.__moveDisposer = addEventListener(document, 'mousemove', (evt) => {
             // INFO: 移动过程中禁止click事件
             if (!this.__clickDisposer) {
                 const moveDistanse = Math.sqrt(Math.pow(this.dX, 2) + Math.pow(this.dY, 2));

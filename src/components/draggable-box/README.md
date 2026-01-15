@@ -196,6 +196,40 @@ function FloatingToolbar() {
 
 边界值基于 `placement` 属性进行智能计算：
 
+#### 单边边界约束
+除了完整的边界范围，DraggableBox 还支持单边边界约束，可以只设置最小边界或最大边界：
+
+```tsx
+// 只有最小边界约束
+<DraggableBox 
+  placement="bottom-right"
+  boundsX={[100, undefined]}  // 右边最小距离100px，无最大限制
+  boundsY={[50, undefined]}   // 底边最小距离50px，无最大限制
+>
+  单边最小边界约束
+</DraggableBox>
+
+// 只有最大边界约束
+<DraggableBox 
+  placement="top-left"
+  boundsX={[undefined, 200]}  // 左边最大距离200px，无最小限制
+  boundsY={[undefined, 150]}  // 顶边最大距离150px，无最小限制
+>
+  单边最大边界约束
+</DraggableBox>
+
+// 混合单边约束
+<DraggableBox 
+  placement="bottom-right"
+  boundsX={[100, undefined]}  // X轴只有最小边界
+  boundsY={[undefined, 30]}   // Y轴只有最大边界
+>
+  混合单边约束
+</DraggableBox>
+```
+
+#### 当 `placement="top-left"` 时：
+
 #### 当 `placement="top-left"` 时：
 - `boundsX=[min, max]`: 左边最小距离 - 左边最大距离
 - `boundsY=[min, max]`: 顶边最小距离 - 顶边最大距离
@@ -234,6 +268,11 @@ function FloatingToolbar() {
 // ✅ 推荐：合理的初始位置
 <DraggableBox placement="bottom-right" offsetX={20} offsetY={20}>
   合适的初始位置
+</DraggableBox>
+
+// ✅ 推荐：单边边界约束使用场景
+<DraggableBox boundsX={[100, undefined]}>
+  {/* 确保组件不贴边，但又给予最大的移动自由 */}
 </DraggableBox>
 
 // ✅ 推荐：在需要时启用拖拽
