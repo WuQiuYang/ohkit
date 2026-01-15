@@ -1,13 +1,49 @@
 /**
  * 给指定的 DOM 元素添加事件监听器，并返回一个函数，用于移除该监听器。
- *
- * @param dom DOM 元素或窗口对象
- * @param type 要监听的事件类型
- * @param cb 事件处理函数或事件处理对象
- * @param options 可选参数，表示是否使用捕获模式或添加事件监听器的其他选项
- * @returns 一个函数，用于移除添加的事件监听器
  */
-export function addEventListener(dom: Window | Document | HTMLElement, type: string, cb: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions) {
-    dom.addEventListener(type, cb, options);
-    return () => dom.removeEventListener(type, cb, options);
+
+export function addEventListener<K extends keyof WindowEventMap>(
+  dom: Window,
+  type: K,
+  cb: (this: Window, evt: WindowEventMap[K]) => any,
+  options?: boolean | AddEventListenerOptions
+): () => void;
+export function addEventListener(
+  dom: Window,
+  type: string,
+  cb: EventListenerOrEventListenerObject,
+  options?: boolean | AddEventListenerOptions
+): () => void;
+
+// Document 事件监听器  
+export function addEventListener<K extends keyof DocumentEventMap>(
+  dom: Document,
+  type: K,
+  cb: (this: Document, evt: DocumentEventMap[K]) => any,
+  options?: boolean | AddEventListenerOptions
+): () => void;
+export function addEventListener(
+  dom: Document,
+  type: string,
+  cb: EventListenerOrEventListenerObject,
+  options?: boolean | AddEventListenerOptions
+): () => void;
+
+// HTMLElement 事件监听器
+export function addEventListener<K extends keyof HTMLElementEventMap>(
+  dom: HTMLElement,
+  type: K | string,
+  cb: (this: HTMLElement, evt: HTMLElementEventMap[K]) => any,
+  options?: boolean | AddEventListenerOptions
+): () => void
+export function addEventListener(
+  dom: HTMLElement,
+  type: string,
+  cb: EventListenerOrEventListenerObject,
+  options?: boolean | AddEventListenerOptions
+): () => void;
+
+export function addEventListener(dom: HTMLElement | Document | Window, type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): () => void {
+  dom.addEventListener(type, listener, options);
+  return () => dom.removeEventListener(type, listener, options);
 }
