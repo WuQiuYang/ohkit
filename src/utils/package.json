@@ -35,6 +35,7 @@
   "dependencies": {
     "@ohkit/async": "0.0.5",
     "@ohkit/auto-reporter": "0.0.7",
+    "@ohkit/data-helper": "0.0.1-beta.0",
     "@ohkit/debug": "0.0.4",
     "@ohkit/dom-helper": "0.0.5",
     "@ohkit/json-helper": "0.0.4",
