@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`DraggableBox renders correctly 1`] = `
+<div
+  class="ohkit-draggable-box__container"
+  style="z-index: 9999; bottom: 0px; right: 0px;"
+/>
+`;

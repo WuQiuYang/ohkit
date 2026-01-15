@@ -1,0 +1,11 @@
+$prefix: ohkit;
+
+.#{$prefix}-draggable-box__ {
+    &container {
+        position: fixed;
+    }
+
+    &moving {
+        cursor: move !important;
+    }
+}
