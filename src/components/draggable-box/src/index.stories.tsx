@@ -22,6 +22,26 @@ const meta: Meta<typeof DraggableBox> = {
 export default meta;
 type Story = StoryObj<typeof DraggableBox>;
 
+const DraggableContentWrapper = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  return (
+    <div
+      style={{
+        color: "#1890ff",
+        backdropFilter: "blur(10px)",
+        borderRadius: "8px",
+        padding: "16px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+
 export const Default: Story = {
   args: {
     children: '自由拖拽 - 默认限制在窗口范围内',
@@ -110,7 +130,7 @@ export const TopLeftSingleBounds: Story = {
 
 export const WithDragAreaVisualization: Story = {
   args: {
-    children: '拖拽区域可视化 - 开始拖拽后显示可拖拽区域',
+    children: <DraggableContentWrapper>{'拖拽区域可视化 - 开始拖拽后显示可拖拽区域'}</DraggableContentWrapper>,
     placement: 'bottom-right',
     boundsX: [100, 300],
     boundsY: [50, 200],

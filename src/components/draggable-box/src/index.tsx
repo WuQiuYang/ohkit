@@ -46,7 +46,6 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         return xKey === 'left' ? 'right' : 'left';
     }
 
-    // TODO:
     updatePosition(yKey: 'top' | 'bottom', xKey: 'left' | 'right') {
         const oYKey = this.getOtherYKey(yKey);
         const oXKey = this.getOtherXKey(xKey);
@@ -55,15 +54,24 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
             [oXKey]: this.dragPositionRang.width - (this.state[xKey] || 0),
         });
     }
+
+    private prePositionMode: DraggableBoxProps['positionMode'];
+    private preDraggerRef: HTMLElement | null = null;
+    private container: HTMLElement | null = null;
     /**
      * 获取定位容器
      * 根据 positionMode 返回对应的定位父元素
      */
-    private getContainer(): HTMLElement {
+    private getContainer(useCache = true): HTMLElement {
         const { positionMode = 'fixed' } = this.props;
-        return positionMode === 'fixed' 
-            ? findFixedPositionParent(this.draggerRef) 
-            : findAbsolutePositionParent(this.draggerRef);
+        if (!useCache || this.prePositionMode !== positionMode || this.preDraggerRef !== this.draggerRef) {
+            this.prePositionMode = positionMode;
+            this.preDraggerRef = this.draggerRef;
+            this.container = positionMode === 'fixed' 
+                ? findFixedPositionParent(this.draggerRef) 
+                : findAbsolutePositionParent(this.draggerRef);
+        }
+        return this.container;
     }
 
     /**
@@ -72,7 +80,7 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
     private getContainerRect() {
         const { positionMode = 'fixed' } = this.props;
         const isFixed = positionMode === 'fixed';
-        const container = this.getContainer();
+        const container = this.getContainer(false);
         const containerRect = container.getBoundingClientRect();
         const rootScrollingElement = window.document.scrollingElement || window.document.body;
         const isRoot = container === window.document.body || container === window.document.documentElement;
@@ -404,20 +412,12 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
             this.dragAreaRef.style.height = '2px'; // 更细的虚线高度
             this.dragAreaRef.style.left = `${minX}px`;
             this.dragAreaRef.style.top = `${this.startTop + dragSize.height / 2}px`;
-            this.dragAreaRef.style.border = 'none';
-            this.dragAreaRef.style.backgroundColor = 'transparent'; // 透明背景
-            this.dragAreaRef.style.backgroundImage = 'linear-gradient(to right, var(--ohkit-color-primary, #1890ff) 50%, transparent 50%)';
-            this.dragAreaRef.style.backgroundSize = '4px 2px'; // 虚线模式
         } else if (lockAxis === 'y') {
             // 锁定X方向，显示为垂直虚线区域
             this.dragAreaRef.style.width = '2px'; // 更细的虚线宽度
             this.dragAreaRef.style.height = `${maxY - minY + dragSize.height}px`;
             this.dragAreaRef.style.left = `${this.startLeft + dragSize.width / 2}px`;
             this.dragAreaRef.style.top = `${minY}px`;
-            this.dragAreaRef.style.border = 'none';
-            this.dragAreaRef.style.backgroundColor = 'transparent'; // 透明背景
-            this.dragAreaRef.style.backgroundImage = 'linear-gradient(to bottom, var(--ohkit-color-primary, #1890ff) 50%, transparent 50%)';
-            this.dragAreaRef.style.backgroundSize = '2px 4px'; // 虚线模式
         } else {
             // 自由拖拽，显示完整区域
             this.dragAreaRef.style.width = `${maxX - minX + dragSize.width}px`;

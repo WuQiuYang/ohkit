@@ -49,9 +49,9 @@ export function getScaleRatio(dom?: HTMLElement | null): { scaleX: number; scale
     }
     // 通过比较 offsetWidth 和 getBoundingClientRect().width 来获取缩放比例
     const rect = dom.getBoundingClientRect();
-    // 扩大10倍进行计算，避免浮点数精度问题
-    const scaleX = dom.offsetWidth > 0 ? Math.round(rect.width / dom.offsetWidth * 10) / 10 : 1;
-    const scaleY = dom.offsetHeight > 0 ? Math.round(rect.height / dom.offsetHeight * 10) / 10 : 1;
+    // 扩大1000倍进行计算，避免浮点数精度问题
+    const scaleX = dom.offsetWidth > 0 ? Math.round(rect.width / dom.offsetWidth * 1000) / 1000 : 1;
+    const scaleY = dom.offsetHeight > 0 ? Math.round(rect.height / dom.offsetHeight * 1000) / 1000 : 1;
     // console.log('scaleX', scaleX, 'scaleY', scaleY);
     return { scaleX, scaleY };
 }
