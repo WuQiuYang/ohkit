@@ -2,10 +2,17 @@ $prefix: ohkit;
 
 .#{$prefix}-draggable-box__ {
     &container {
-        position: fixed;
+        // position 由内联样式动态控制，默认为 fixed
+        user-select: none;
+        cursor: grab;
     }
 
     &moving {
         cursor: move !important;
+    }
+
+    &drag-area {
+        transition: opacity 0.2s ease-in-out;
+        opacity: 0.7;
     }
 }

@@ -2,13 +2,16 @@
 
 🚀 功能强大的可拖拽容器组件
 
-一个灵活的拖拽容器组件，支持方向锁定、边界限制和多种位置配置，适用于悬浮窗口、工具栏、侧边栏等各种需要拖拽交互的场景。
+一个灵活的拖拽容器组件，支持方向锁定、边界限制、多种定位模式和 Transform 缩放支持，适用于悬浮窗口、工具栏、侧边栏等各种需要拖拽交互的场景。
+
 ## ✨ 特性亮点
 
 - 🎯 **灵活拖拽**: 支持窗口范围内的自由拖拽
 - 🔒 **方向锁定**: 可锁定水平或垂直方向拖动
 - 🎚️ **边界控制**: 智能边界限制，支持相对和绝对边界
 - 📐 **多种定位**: 支持四角定位，适应不同布局需求
+- 🔄 **定位模式**: 支持 fixed 和 absolute 两种定位模式
+- 📏 **Transform 支持**: 自动适应父容器的 transform 缩放
 - ♿ **可访问性**: 支持禁用状态，提升用户体验
 - 🎨 **样式自定义**: 支持自定义类名和样式覆盖
 - 📱 **响应式**: 自适应窗口大小变化
@@ -104,6 +107,69 @@ function App() {
 }
 ```
 
+### 定位模式
+
+组件支持两种定位模式，适应不同的使用场景：
+
+#### Fixed 模式（默认）
+
+适用于大多数场景，自动适应父容器的 transform 属性：
+
+```tsx
+function FixedModeExample() {
+  return (
+    <div style={{ height: '100vh', transform: 'scale(0.8)' }}>
+      {/* 在有 transform 的父容器中正常工作 */}
+      <DraggableBox positionMode="fixed">
+        <div style={{ padding: '16px', background: '#e3f2fd' }}>
+          Fixed 模式 - 自动适应 transform
+        </div>
+      </DraggableBox>
+    </div>
+  );
+}
+```
+
+#### Absolute 模式
+
+适用于需要在定位容器内拖拽的场景：
+
+```tsx
+function AbsoluteModeExample() {
+  return (
+    <div style={{ position: 'relative', width: '600px', height: '400px', border: '2px solid #52c41a' }}>
+      {/* 在定位容器内拖拽 */}
+      <DraggableBox positionMode="absolute" placement="top-left">
+        <div style={{ padding: '16px', background: '#f6ffed' }}>
+          Absolute 模式 - 在定位容器内
+        </div>
+      </DraggableBox>
+    </div>
+  );
+}
+```
+
+### 拖拽区域可视化
+
+启用 `showDragArea` 可以在拖拽时显示可拖拽范围：
+
+```tsx
+function DragAreaExample() {
+  return (
+    <DraggableBox 
+      placement="bottom-right"
+      boundsX={[50, 300]}
+      boundsY={[50, 200]}
+      showDragArea={true}
+    >
+      <div style={{ padding: '16px', background: '#fff7e6' }}>
+        拖拽时显示可拖拽区域
+      </div>
+    </DraggableBox>
+  );
+}
+```
+
 ### 组合功能
 
 ```tsx
@@ -175,6 +241,42 @@ function FloatingToolbar() {
 }
 ```
 
+### Transform 缩放支持
+
+组件自动适应父容器的 transform 缩放，无需额外配置：
+
+```tsx
+function TransformExample() {
+  return (
+    <div style={{ 
+      width: '600px', 
+      height: '400px', 
+      border: '2px solid #1890ff',
+      transform: 'scale(0.8)',
+      transformOrigin: 'top left',
+      padding: '20px',
+      background: '#f0f0f0'
+    }}>
+      <p style={{ marginBottom: '20px', color: '#666' }}>
+        父容器有 transform: scale(0.8)，组件自动适应
+      </p>
+      <DraggableBox 
+        placement="bottom-right"
+        offsetX={50}
+        offsetY={50}
+        boundsX={[20, 300]}
+        boundsY={[20, 200]}
+        showDragArea={true}
+      >
+        <div style={{ padding: '16px', background: '#e6f7ff' }}>
+          在 transform 父元素中正常拖拽
+        </div>
+      </DraggableBox>
+    </div>
+  );
+}
+```
+
 ## 📋 API 参考
 
 ### DraggableBoxProps
@@ -191,12 +293,31 @@ function FloatingToolbar() {
 | `lockAxis` | `'none'` \| `'x'` \| `'y'` | `'none'` | 拖拽方向锁定 |
 | `boundsX` | `[number?, number?]` | - | X轴边界范围 `[min, max]` |
 | `boundsY` | `[number?, number?]` | - | Y轴边界范围 `[min, max]` |
+| `positionMode` | `'fixed'` \| `'absolute'` | `'fixed'` | 定位模式 |
+| `showDragArea` | `boolean` | `false` | 是否显示拖拽区域可视化 |
+
+### 💡 定位模式说明
+
+#### `positionMode="fixed"`（默认）
+
+- 使用 `position: fixed` 定位
+- 自动查找影响 fixed 定位的父元素（transform/filter/perspective）
+- 适用于大多数场景，特别是父容器有 transform 时
+- 组件会自动适应父容器的缩放
+
+#### `positionMode="absolute"`
+
+- 使用 `position: absolute` 定位
+- 基于最近的非 static 定位父元素
+- 适用于需要在特定定位容器内拖拽的场景
+- 父容器需要有 `position: relative`、`absolute` 或 `fixed`
 
 ### 💡 边界说明
 
 边界值基于 `placement` 属性进行智能计算：
 
 #### 单边边界约束
+
 除了完整的边界范围，DraggableBox 还支持单边边界约束，可以只设置最小边界或最大边界：
 
 ```tsx
@@ -230,25 +351,28 @@ function FloatingToolbar() {
 
 #### 当 `placement="top-left"` 时：
 
-#### 当 `placement="top-left"` 时：
 - `boundsX=[min, max]`: 左边最小距离 - 左边最大距离
 - `boundsY=[min, max]`: 顶边最小距离 - 顶边最大距离
 
 #### 当 `placement="bottom-right"` 时：
+
 - `boundsX=[min, max]`: 右边最小距离 - 右边最大距离  
 - `boundsY=[min, max]`: 底边最小距离 - 底边最大距离
 
 #### 当 `placement="top-right"` 时：
+
 - `boundsX=[min, max]`: 右边最小距离 - 右边最大距离
 - `boundsY=[min, max]`: 顶边最小距离 - 顶边最大距离
 
 #### 当 `placement="bottom-left"` 时：
+
 - `boundsX=[min, max]`: 左边最小距离 - 左边最大距离
 - `boundsY=[min, max]`: 底边最小距离 - 底边最大距离
 
-## ??️ 最佳实践
+## 💡 最佳实践
 
 ### 1. 边界配置建议
+
 ```tsx
 // ✅ 推荐：合理设置边界，确保用户体验
 <DraggableBox 
@@ -264,6 +388,7 @@ function FloatingToolbar() {
 ```
 
 ### 2. 性能优化
+
 ```tsx
 // ✅ 推荐：合理的初始位置
 <DraggableBox placement="bottom-right" offsetX={20} offsetY={20}>
@@ -281,7 +406,45 @@ function FloatingToolbar() {
 </DraggableBox>
 ```
 
-### 3. 响应式设计
+### 3. 定位模式选择
+
+```tsx
+// ✅ 推荐：大多数场景使用 fixed 模式
+<DraggableBox positionMode="fixed">
+  {/* 自动适应父容器的 transform */}
+</DraggableBox>
+
+// ✅ 推荐：在定位容器内使用 absolute 模式
+<div style={{ position: 'relative' }}>
+  <DraggableBox positionMode="absolute">
+    {/* 在定位容器内拖拽 */}
+  </DraggableBox>
+</div>
+```
+
+### 4. Transform 缩放场景
+
+```tsx
+// ✅ 推荐：在有 transform 的父容器中使用 fixed 模式
+<div style={{ transform: 'scale(0.8)' }}>
+  <DraggableBox positionMode="fixed">
+    {/* 组件会自动适应缩放 */}
+  </DraggableBox>
+</div>
+
+// ✅ 推荐：启用拖拽区域可视化以查看可拖拽范围
+<DraggableBox 
+  positionMode="fixed"
+  boundsX={[50, 300]}
+  boundsY={[50, 200]}
+  showDragArea={true}
+>
+  {/* 拖拽时显示可拖拽区域 */}
+</DraggableBox>
+```
+
+### 5. 响应式设计
+
 ```tsx
 function ResponsiveDraggable() {
   const [windowSize, setWindowSize] = useState({
@@ -315,6 +478,7 @@ function ResponsiveDraggable() {
 ## 🌟 使用场景
 
 ### 浮动控制面板
+
 ```tsx
 function ControlPanel() {
   return (
@@ -341,6 +505,7 @@ function ControlPanel() {
 ```
 
 ### 可拖拽侧边工具栏
+
 ```tsx
 function DraggableToolbar() {
   return (
@@ -367,11 +532,51 @@ function DraggableToolbar() {
 }
 ```
 
-## 🔧 自定义样式
+### Transform 缩放场景
+
+```tsx
+function ScaledContainer() {
+  return (
+    <div style={{ 
+      width: '800px', 
+      height: '600px',
+      transform: 'scale(0.8)',
+      transformOrigin: 'top left',
+      border: '2px solid #1890ff',
+      padding: '20px',
+      background: '#f5f5f5'
+    }}>
+      <h3 style={{ marginBottom: '20px' }}>
+        缩放容器 (scale: 0.8)
+      </h3>
+      <DraggableBox 
+        placement="bottom-right"
+        offsetX={50}
+        offsetY={50}
+        boundsX={[50, 500]}
+        boundsY={[50, 400]}
+        showDragArea={true}
+      >
+        <div style={{ 
+          padding: '16px', 
+          background: 'white',
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        }}>
+          在缩放容器中正常拖拽
+        </div>
+      </DraggableBox>
+    </div>
+  );
+}
+```
+
+## 🎨 自定义样式
 
 组件支持通过 `className` 属性传入自定义样式类名，实现样式覆盖：
 
 ### 基础样式自定义
+
 ```tsx
 function CustomStyledDraggable() {
   return (
@@ -386,7 +591,6 @@ function CustomStyledDraggable() {
 /* 在您的 CSS 文件中 */
 .my-custom-draggable {
   /* 覆盖容器样式 */
-  position: fixed;
   cursor: grab;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
@@ -405,6 +609,7 @@ function CustomStyledDraggable() {
 ```
 
 ### 拖拽状态样式
+
 ```tsx
 function DraggableWithState() {
   const [isDragging, setIsDragging] = useState(false);
@@ -437,6 +642,7 @@ function DraggableWithState() {
 ```
 
 ### 响应式样式
+
 ```tsx
 function ResponsiveDraggable() {
   return (
@@ -463,6 +669,7 @@ function ResponsiveDraggable() {
 ```
 
 ### 主题化样式
+
 ```tsx
 function ThemedDraggable({ theme = 'light' }) {
   return (

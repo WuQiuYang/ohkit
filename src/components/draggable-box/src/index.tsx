@@ -4,69 +4,13 @@ import {
   classNames as cx,
 } from "@ohkit/prefix-classname";
 import {addEventListener, addClass} from '@ohkit/dom-helper';
-// import {throttle} from 'lodash-es';
+import {findFixedPositionParent, findAbsolutePositionParent, getScaleRatio} from './utils';
+import {ValidPlacement} from './constants';
+import {DraggableBoxProps, DraggableBoxState} from './type';
 
 import './style.scss';
 
 export const c = p("ohkit-draggable-box__");
-
-export interface DraggableBoxProps {
-  className?: string;
-  children?: React.ReactNode;
-  /**
-   * z-index 层级
-   * @default 9999
-   */
-  zIndex?: number;
-  /**
-   * 初始位置 横向偏移量
-   * @default 20
-   */
-  offsetX?: number;
-  /**
-   * 初始位置 纵向偏移量
-   * @default 20
-   */
-  offsetY?: number;
-  /**
-   * 是否禁用拖拽
-   * @default false
-   */
-  disabled?: boolean;
-  /**
-   * 拖拽位置，可选值：'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
-   * @default 'bottom-right'
-   */
-  placement?: typeof ValidPlacement[number]; // 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-  /**
-   * 锁定拖拽方向
-   * 'none' - 自由拖拽 (默认)
-   * 'x' - 只允许水平方向拖拽
-   * 'y' - 只允许垂直方向拖拽
-   * @default 'none'
-   */
-  lockAxis?: 'none' | 'x' | 'y';
-  /**
-   * X轴相对边界 [min, max] - 基于placement的相对距离范围
-   * 比如：placement='top-left'时，boundsX=[左边最小距离, 左边最大距离]
-   */
-  boundsX?: [number?, number?];
-  /**
-   * Y轴相对边界 [min, max] - 基于placement的相对距离范围
-   * 比如：placement='top-left'时，boundsY=[顶边最小距离, 顶边最大距离]
-   */
-  boundsY?: [number?, number?];
-}
-
-interface DraggableBoxState {
-    top?: number;
-    bottom?: number;
-    left?: number;
-    right?: number;
-}
-
-const ValidPlacement = ['top-left', 'top-right', 'bottom-left', 'bottom-right'] as const;
-
 export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBoxState> {
     static defaultProps: Partial<DraggableBoxProps> = {
         zIndex: 9999,
@@ -75,6 +19,8 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         placement: 'bottom-right',
         disabled: false,
         lockAxis: 'none',
+        showDragArea: false,
+        positionMode: 'fixed',
     };
 
     constructor(props: DraggableBoxProps) {
@@ -109,10 +55,42 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
             [oXKey]: this.dragPositionRang.width - (this.state[xKey] || 0),
         });
     }
+    /**
+     * 获取定位容器
+     * 根据 positionMode 返回对应的定位父元素
+     */
+    private getContainer(): HTMLElement {
+        const { positionMode = 'fixed' } = this.props;
+        return positionMode === 'fixed' 
+            ? findFixedPositionParent(this.draggerRef) 
+            : findAbsolutePositionParent(this.draggerRef);
+    }
+
+    /**
+     * 获取容器的尺寸和位置信息
+     */
+    private getContainerRect() {
+        const { positionMode = 'fixed' } = this.props;
+        const isFixed = positionMode === 'fixed';
+        const container = this.getContainer();
+        const containerRect = container.getBoundingClientRect();
+        const rootScrollingElement = window.document.scrollingElement || window.document.body;
+        const isRoot = container === window.document.body || container === window.document.documentElement;
+        return {
+            width: containerRect.width,
+            height: containerRect.height,
+            left: isFixed && isRoot ? Math.max(containerRect.left, 0) : containerRect.left + rootScrollingElement.scrollLeft,
+            top: isFixed && isRoot ? Math.max(containerRect.top, 0) : containerRect.top + rootScrollingElement.scrollTop,
+            scrollLeft: isFixed && isRoot ? 0 : container.scrollLeft, // container.scrollLeft,
+            scrollTop: isFixed && isRoot ? 0 : container.scrollTop, // container.scrollTop
+            scrollerScrollLeft: isFixed && isRoot ? 0 : rootScrollingElement.scrollLeft,
+            scrollerScrollTop: isFixed && isRoot ? 0 : rootScrollingElement.scrollTop
+        };
+    }
 
     get windowSize() {
-        // 排除浏览器滚动条宽度
-        const {clientHeight, clientWidth} = document.documentElement || document.body;
+        const container = this.getContainer();
+        const { clientWidth, clientHeight } = container;
         return {
             height: clientHeight,
             width: clientWidth
@@ -245,21 +223,33 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
     startTop = 0;
     startLeft = 0;
 
+    // 缓存缩放比例，避免在 dragging 中频繁计算
+    cachedScaleX = 1;
+    cachedScaleY = 1;
+
     __moveDisposer?: () => void;
     __clickDisposer?: () => void;
     __bodyClassDisposer?: () => void;
     __upDisposer?: () => void;
     __resizeDisposer?: () => void;
 
+    dragAreaRef: HTMLDivElement | null = null;
+
     reportStartPosition() {
-        // this.startTop = this.draggerRef?.offsetTop;
-        // this.startLeft = this.draggerRef?.offsetLeft;
         if (this.draggerRef) {
-            const {top, left} = this.draggerRef?.getBoundingClientRect();
-            this.startTop = top;
-            this.startLeft = left;
+            const { top, left } = this.draggerRef.getBoundingClientRect();
+            const containerRect = this.getContainerRect();
+            // console.log(containerRect, 'containerRect');
+            
+            // 获取缩放比例
+            const { scaleX, scaleY } = getScaleRatio(this.draggerRef);
+            this.cachedScaleX = scaleX;
+            this.cachedScaleY = scaleY;
+            
+            // 计算相对于容器的位置，并除以缩放比例得到未缩放的坐标
+            this.startTop = (top - containerRect.top + containerRect.scrollerScrollTop) / scaleY + containerRect.scrollTop;
+            this.startLeft = (left - containerRect.left + containerRect.scrollerScrollLeft) / scaleX + containerRect.scrollLeft;
         }
-        // console.log(this.startTop, this.startLeft, 'startTop startLeft');
     }
 
     enableDrag = () => {
@@ -279,7 +269,12 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
                         },
                         true
                     );
-                    this.__bodyClassDisposer = addClass(document.body, c('moving')) || undefined;
+                    this.__bodyClassDisposer = addClass([document.body, this.draggerRef], c('moving')) || undefined;
+                    
+                    // 显示拖拽区域
+                    if (this.props.showDragArea && this.dragAreaRef) {
+                        this.showDragArea();
+                    }
                 }
             }
             this.dragging(evt);
@@ -315,9 +310,13 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         const { lockAxis } = this.props;
         const { minX, maxX, minY, maxY } = this.dragPositionBoundaries;
         
-        // 计算原始偏移量
-        this.dX = evt.pageX - (this.axisX || 0);
-        this.dY = evt.pageY - (this.axisY || 0);
+        // 使用缓存的缩放比例，避免频繁计算
+        const scaleX = this.cachedScaleX;
+        const scaleY = this.cachedScaleY;
+        
+        // 计算原始偏移量（需要除以缩放比例）
+        this.dX = (evt.pageX - (this.axisX || 0)) / scaleX;
+        this.dY = (evt.pageY - (this.axisY || 0)) / scaleY;
         
         // 应用方向锁定并计算变换值
         let translateX = this.dX;
@@ -361,7 +360,12 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         if (this.isDragging) {
             this.calcPosition();
             if (this.draggerRef) {
-                this.draggerRef.style.transform = 'translate(0, 0)';
+                this.draggerRef.style.transform = '';
+            }
+            
+            // 隐藏拖拽区域
+            if (this.props.showDragArea) {
+                this.hideDragArea();
             }
         }
 
@@ -382,9 +386,58 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
 
         this.isDragging = false;
     };
+
+    showDragArea = () => {
+        if (!this.props.showDragArea || !this.dragAreaRef) return;
+        
+        const { lockAxis } = this.props;
+        const { minX, maxX, minY, maxY } = this.dragPositionBoundaries;
+        const dragSize = this.dragBoxSize;
+        
+        // 重置样式
+            this.dragAreaRef.style.border = '1px dashed var(--ohkit-color-primary, #1890ff)';
+            this.dragAreaRef.style.backgroundColor = 'rgba(173, 216, 230, 0.2)'; // 淡透蓝色
+        
+        if (lockAxis === 'x') {
+            // 锁定Y方向，显示为水平虚线区域
+            this.dragAreaRef.style.width = `${maxX - minX + dragSize.width}px`;
+            this.dragAreaRef.style.height = '2px'; // 更细的虚线高度
+            this.dragAreaRef.style.left = `${minX}px`;
+            this.dragAreaRef.style.top = `${this.startTop + dragSize.height / 2}px`;
+            this.dragAreaRef.style.border = 'none';
+            this.dragAreaRef.style.backgroundColor = 'transparent'; // 透明背景
+            this.dragAreaRef.style.backgroundImage = 'linear-gradient(to right, var(--ohkit-color-primary, #1890ff) 50%, transparent 50%)';
+            this.dragAreaRef.style.backgroundSize = '4px 2px'; // 虚线模式
+        } else if (lockAxis === 'y') {
+            // 锁定X方向，显示为垂直虚线区域
+            this.dragAreaRef.style.width = '2px'; // 更细的虚线宽度
+            this.dragAreaRef.style.height = `${maxY - minY + dragSize.height}px`;
+            this.dragAreaRef.style.left = `${this.startLeft + dragSize.width / 2}px`;
+            this.dragAreaRef.style.top = `${minY}px`;
+            this.dragAreaRef.style.border = 'none';
+            this.dragAreaRef.style.backgroundColor = 'transparent'; // 透明背景
+            this.dragAreaRef.style.backgroundImage = 'linear-gradient(to bottom, var(--ohkit-color-primary, #1890ff) 50%, transparent 50%)';
+            this.dragAreaRef.style.backgroundSize = '2px 4px'; // 虚线模式
+        } else {
+            // 自由拖拽，显示完整区域
+            this.dragAreaRef.style.width = `${maxX - minX + dragSize.width}px`;
+            this.dragAreaRef.style.height = `${maxY - minY + dragSize.height}px`;
+            this.dragAreaRef.style.left = `${minX}px`;
+            this.dragAreaRef.style.top = `${minY}px`;
+        }
+        
+        this.dragAreaRef.style.display = 'block';
+    };
+
+    hideDragArea = () => {
+        if (this.dragAreaRef) {
+            this.dragAreaRef.style.display = 'none';
+        }
+    };
     calcPosition = () => {
         const { lockAxis } = this.props;
         const { minX, maxX, minY, maxY } = this.dragPositionBoundaries;
+        const containerSize = this.windowSize;
         
         // 计算新的位置
         let newTop = this.startTop;
@@ -400,11 +453,11 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         // 应用边界限制
         const realTop = Math.min(Math.max(minY, newTop), maxY);
         const realLeft = Math.min(Math.max(minX, newLeft), maxX);
-        const realBottom = this.windowSize.height - realTop - this.dragBoxSize.height;
-        const realRight = this.windowSize.width - realLeft - this.dragBoxSize.width;
+        const realBottom = containerSize.height - realTop - this.dragBoxSize.height;
+        const realRight = containerSize.width - realLeft - this.dragBoxSize.width;
         if (realTop !== this.state.top || realLeft !== this.state.left || this.state.bottom !== realBottom || this.state.right !== realRight) {
-            console.log(minY, maxY, this.startTop, this.dY, newTop, realTop, 'calcPosition y');
-            console.log(minX, maxX, this.startLeft, this.dX, newLeft, realLeft, 'calcPosition x');
+            // console.log(minY, maxY, this.startTop, this.dY, newTop, realTop, 'calcPosition y');
+            // console.log(minX, maxX, this.startLeft, this.dX, newLeft, realLeft, 'calcPosition x');
             this.setState({
                 top: realTop,
                 left: realLeft,
@@ -416,10 +469,7 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         this.startLeft = realLeft;
         this.dX = this.dY = 0;
     };
-    
-    // throttleCalcPosition = throttle(this.calcPosition, 80, {
-    //     trailing: false
-    // });
+
 
     componentDidMount() {
         // 检查初始位置是否在边界范围内，如果不在则修正
@@ -440,24 +490,45 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
     }
 
     render() {
-        const {className, zIndex, children} = this.props;
-        const {startDrag, endDrag} = this;
+        const { className, zIndex, children, showDragArea, positionMode = 'fixed' } = this.props;
+        const { startDrag, endDrag } = this;
         const stl = {
             zIndex,
-            ...this.position
+            ...this.position,
+            position: positionMode
         };
         return (
-            <div
-                className={cx(c('container'), className)}
-                style={stl}
-                ref={(r) => {
-                    this.draggerRef = r;
-                }}
-                onMouseDown={startDrag}
-                onMouseUp={endDrag}
-            >
-                {children}
-            </div>
+            <>
+                {showDragArea && (
+                    <div
+                        className={c('drag-area')}
+                        ref={(r) => {
+                            this.dragAreaRef = r;
+                        }}
+                        style={{
+                            display: 'none',
+                            position: positionMode,
+                            backgroundColor: 'rgba(173, 216, 230, 0.2)', // 淡透蓝色
+                            border: '1px dashed var(--ohkit-color-primary, #1890ff)',
+                            pointerEvents: 'none',
+                            zIndex: (zIndex || 9999) - 1,
+                            boxSizing: 'border-box',
+                            borderRadius: this.props.lockAxis !== 'none' ? '2px' : '0',
+                        }}
+                    />
+                )}
+                <div
+                    className={cx(c('container'), className)}
+                    style={stl}
+                    ref={(r) => {
+                        this.draggerRef = r;
+                    }}
+                    onMouseDown={startDrag}
+                    onMouseUp={endDrag}
+                >
+                    {children}
+                </div>
+            </>
         );
     }
 }
