@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/back-top",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "列表滚动超过指定距离后自动展示返回顶部按钮",
   "keywords": [
     "back-top"
@@ -27,9 +27,9 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ohkit/dom-helper": "0.0.5",
+    "@ohkit/dom-helper": "0.0.6",
     "@ohkit/prefix-classname": "^0.0.3",
-    "@ohkit/react-helper": "0.0.5"
+    "@ohkit/react-helper": "0.0.6"
   },
   "peerDependencies": {
     "react": ">=17",
