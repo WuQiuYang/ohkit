@@ -1,4 +1,4 @@
-interface IFullscreenOptions {
+interface IFullscreenOptions extends FullscreenOptions {
   /**
    * 全屏的目标元素
    * @default document.body
@@ -56,7 +56,7 @@ export const getCompatibleApi = <
   ele: S,
   apiName: T,
   prefixes = CompatiblePrefixList
-) => {
+): S[T] | undefined => {
   if (typeof apiName === "symbol" || typeof apiName === "number") {
     return ele[apiName];
   }
@@ -212,6 +212,7 @@ export class Fullscreen {
         // element = document.body,
         onlyFullPage: isFullPage = false,
         className = "",
+        navigationUI = "auto",
         onEnter,
         onExit,
       } = opts || {};
@@ -247,26 +248,19 @@ export class Fullscreen {
         return true;
       }
 
-      if (this.fullscreenEnabled()) {
+      const requestFullscreenApi = getCompatibleApi(rootElement, "requestFullscreen");
+      if (this.fullscreenEnabled() && requestFullscreenApi) {
         if (onExit) {
           this.addEvent(rootElement, onExit);
         }
-        return getCompatibleApi(rootElement, "requestFullscreen")
-          ?.call(rootElement)
-          .then(() => {
-            if (className) {
-              rootElement.classList.add(className);
-              this.addEvent(rootElement, () => {
-                rootElement.classList.remove(className);
-              });
-            }
-            onEnter?.();
-            return true;
-          })
-          .catch((err) => {
-            console.error(err);
-            return false;
+        await requestFullscreenApi.call(rootElement, {navigationUI});
+        if (className) {
+          rootElement.classList.add(className);
+          this.addEvent(rootElement, () => {
+            rootElement.classList.remove(className);
           });
+        }
+        onEnter?.();
       } else {
         console.log("[Fullscreen]: 当前浏览器不支持全屏，降级处理为网页全屏");
         fullElem();
@@ -293,17 +287,10 @@ export class Fullscreen {
         return false;
       }
 
-      if (getCompatibleApi(document, "exitFullscreen")) {
-        return getCompatibleApi(document, "exitFullscreen")
-          ?.call(document)
-          .then(() => {
-            this.flushAndDispose(fullScreenElement);
-            return true;
-          })
-          .catch((err) => {
-            console.error(err);
-            return false;
-          });
+      const exitFullscreenApi = getCompatibleApi(document, "exitFullscreen");
+      if (exitFullscreenApi) {
+        await exitFullscreenApi.call(document);
+        this.flushAndDispose(fullScreenElement);
       } else {
         return false;
       }

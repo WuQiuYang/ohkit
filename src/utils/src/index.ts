@@ -8,4 +8,5 @@ export * from '@ohkit/json-helper';
 export * from '@ohkit/debug';
 export * from '@ohkit/dom-helper';
 export * from '@ohkit/tree-helper';
+export * from '@ohkit/data-helper';
 /* plop.append:UTILS_EXPORT */

@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`BackTop renders correctly 1`] = `
+<div
+  class="ohkit-back-top__container ohkit-back-top__invisible ohkit-back-top__"
+  style="bottom: 50px; right: 100px;"
+  title="返回顶部"
+>
+  ↑
+</div>
+`;

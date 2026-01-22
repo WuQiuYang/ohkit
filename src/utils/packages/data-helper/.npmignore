@@ -1,0 +1,9 @@
+__tests__
+*.test.*
+__mock__
+*.stories.*
+*.mdx
+plopfile.js
+tsconfig.json
+./node_modules
+.npmrc

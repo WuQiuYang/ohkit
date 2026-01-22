@@ -1,0 +1,46 @@
+$prefix: ohkit;
+
+.#{$prefix}-back-top__ {
+  &container {
+    // 添加你的样式
+    position: fixed;
+    // right: 100px;
+    // bottom: 50px;
+    box-sizing: border-box;
+    padding: 4px;
+    min-width: 40px;
+    min-height: 40px;
+    line-height: 1.2em;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #fff;
+    white-space: pre-line;
+    border-radius: 4px;
+    // border-radius: 50%;
+
+    transition: all 0.2s ease-in;
+  }
+  &absolute {
+      position: absolute;
+      // right: 20px;
+      // bottom: 20px;
+  }
+
+  &invisible {
+      pointer-events: none;
+      opacity: 0;
+      background: transparent;
+  }
+  &visible {
+      background: rgba(78, 85, 98, 0.25);
+      opacity: 1;
+      cursor: pointer;
+
+      &:hover {
+          background: rgba(78, 85, 98, 0.4);
+      }
+  }
+}

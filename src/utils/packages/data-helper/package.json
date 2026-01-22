@@ -1,9 +1,9 @@
 {
-  "name": "@ohkit/dom-helper",
-  "version": "0.0.6",
-  "description": "html dom 操作相关工具函数",
+  "name": "@ohkit/data-helper",
+  "version": "0.0.1",
+  "description": "数据操作工具集",
   "keywords": [
-    "dom-helper"
+    "data-helper"
   ],
   "homepage": "",
   "license": "ISC",
