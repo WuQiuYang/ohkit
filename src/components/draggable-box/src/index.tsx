@@ -4,7 +4,7 @@ import {
   classNames as cx,
 } from "@ohkit/prefix-classname";
 import {addEventListener, addClass} from '@ohkit/dom-helper';
-import {findFixedPositionParent, findAbsolutePositionParent, getScaleRatio} from './utils';
+import {findFixedPositionParent, findAbsolutePositionParent, getScaleRatio, clamp} from './utils';
 import {ValidPlacement} from './constants';
 import {DraggableBoxProps, DraggableBoxState} from './type';
 
@@ -38,23 +38,6 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         };
     }
 
-    getOtherYKey(yKey: 'top' | 'bottom') {
-        return yKey === 'top' ? 'bottom' : 'top';
-    }
-
-    getOtherXKey(xKey: 'left' | 'right') {
-        return xKey === 'left' ? 'right' : 'left';
-    }
-
-    updatePosition(yKey: 'top' | 'bottom', xKey: 'left' | 'right') {
-        const oYKey = this.getOtherYKey(yKey);
-        const oXKey = this.getOtherXKey(xKey);
-        this.setState({
-            [oYKey]: this.dragPositionRang.height - (this.state[yKey] || 0),
-            [oXKey]: this.dragPositionRang.width - (this.state[xKey] || 0),
-        });
-    }
-
     private prePositionMode: DraggableBoxProps['positionMode'];
     private preDraggerRef: HTMLElement | null = null;
     private container: HTMLElement | null = null;
@@ -62,9 +45,9 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
      * 获取定位容器
      * 根据 positionMode 返回对应的定位父元素
      */
-    private getContainer(useCache = true): HTMLElement {
+    private getContainer(useCache = true) {
         const { positionMode = 'fixed' } = this.props;
-        if (!useCache || this.prePositionMode !== positionMode || this.preDraggerRef !== this.draggerRef) {
+        if (!this.container || !useCache || this.prePositionMode !== positionMode || this.preDraggerRef !== this.draggerRef) {
             this.prePositionMode = positionMode;
             this.preDraggerRef = this.draggerRef;
             this.container = positionMode === 'fixed' 
@@ -78,30 +61,42 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
      * 获取容器的尺寸和位置信息
      */
     private getContainerRect() {
-        const { positionMode = 'fixed' } = this.props;
-        const isFixed = positionMode === 'fixed';
         const container = this.getContainer(false);
+        if (!container) {
+            return {
+                width: window.innerWidth,
+                height: window.innerHeight,
+                left: 0,
+                top: 0,
+                scrollLeft: 0,
+                scrollTop: 0,
+                scrollerScrollLeft: 0,
+                scrollerScrollTop: 0,
+                borderLeftWidth: 0,
+                borderTopWidth: 0
+            };
+        }
         const containerRect = container.getBoundingClientRect();
-        const rootScrollingElement = window.document.scrollingElement || window.document.body;
-        const isRoot = container === window.document.body || container === window.document.documentElement;
-        return {
-            width: containerRect.width,
-            height: containerRect.height,
-            left: isFixed && isRoot ? Math.max(containerRect.left, 0) : containerRect.left + rootScrollingElement.scrollLeft,
-            top: isFixed && isRoot ? Math.max(containerRect.top, 0) : containerRect.top + rootScrollingElement.scrollTop,
-            scrollLeft: isFixed && isRoot ? 0 : container.scrollLeft, // container.scrollLeft,
-            scrollTop: isFixed && isRoot ? 0 : container.scrollTop, // container.scrollTop
-            scrollerScrollLeft: isFixed && isRoot ? 0 : rootScrollingElement.scrollLeft,
-            scrollerScrollTop: isFixed && isRoot ? 0 : rootScrollingElement.scrollTop
-        };
-    }
+        
+        // 获取容器的border宽度(仅 top, left 对坐标计算有影响)
+        const containerStyle = window.getComputedStyle(container);
+        const borderLeftWidth = parseFloat(containerStyle.borderLeftWidth) || 0;
+        const borderTopWidth = parseFloat(containerStyle.borderTopWidth) || 0;
+        const borderRightWidth = parseFloat(containerStyle.borderRightWidth) || 0;
+        const borderBottomWidth = parseFloat(containerStyle.borderBottomWidth) || 0;
+        const yScrollerWidth = container.offsetWidth - container.clientWidth - borderLeftWidth - borderRightWidth;
+        const xScrollerHeight = container.offsetHeight - container.clientHeight - borderTopWidth - borderBottomWidth;
+        // console.log('yScrollerWidth, xScrollerHeight', yScrollerWidth, xScrollerHeight);
 
-    get windowSize() {
-        const container = this.getContainer();
-        const { clientWidth, clientHeight } = container;
         return {
-            height: clientHeight,
-            width: clientWidth
+            width: containerRect.width / this.cachedScaleX - borderLeftWidth - borderRightWidth - yScrollerWidth,
+            height: containerRect.height / this.cachedScaleY - borderTopWidth - borderBottomWidth - xScrollerHeight,
+            left: containerRect.left / this.cachedScaleX,
+            top: containerRect.top / this.cachedScaleY,
+            scrollLeft: container.scrollLeft,
+            scrollTop: container.scrollTop,
+            borderLeftWidth: borderLeftWidth,
+            borderTopWidth: borderTopWidth,
         };
     }
 
@@ -121,19 +116,21 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
     get dragPositionBoundaries() {
         const { boundsX, boundsY, placement = 'bottom-right' } = this.props;
         const dragSize = this.dragBoxSize;
-        const windowSize = this.windowSize;
+        const {width: containerWidth, height: containerHeight} = this.getContainerRect();
         const [placementY, placementX] = placement.split('-') as ['top' | 'bottom', 'left' | 'right'];
         
+        const defaultBounds = {
+            minX: 0,
+            maxX: Math.max(containerWidth - dragSize.width, 0),
+            minY: 0,
+            maxY: Math.max(containerHeight- dragSize.height, 0),
+        };
         // 初始化边界
-        let minX = 0;
-        let maxX = windowSize.width - dragSize.width;
-        let minY = 0;
-        let maxY = windowSize.height - dragSize.height;
+        let {minX, maxX, minY, maxY} = defaultBounds
 
         // 处理X轴边界
         if (boundsX) {
             const [minBound, maxBound] = boundsX;
-            
             if (placementX === 'left') {
                 // 左边位置：boundsX=[左边最小距离, 左边最大距离]
                 if (minBound !== undefined) minX = Math.max(minX, minBound);
@@ -142,19 +139,14 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
                 // 右边位置：boundsX=[右边最小距离, 右边最大距离]
                 // 直接使用边界值作为right的限制
                 if (minBound !== undefined && maxBound !== undefined) {
-                    minX = Math.max(minX, windowSize.width - maxBound - dragSize.width);
-                    maxX = Math.min(maxX, windowSize.width - minBound - dragSize.width);
+                    minX = Math.max(minX, containerWidth - maxBound - dragSize.width);
+                    maxX = Math.min(maxX, containerWidth - minBound - dragSize.width);
                 } else if (minBound !== undefined) {
                     // 只有minBound：设置最大边界，最小边界保持默认
-                    maxX = Math.min(maxX, windowSize.width - minBound - dragSize.width);
+                    maxX = Math.min(maxX, containerWidth - minBound - dragSize.width);
                 } else if (maxBound !== undefined) {
                     // 只有maxBound：设置最小边界，最大边界保持默认
-                    minX = Math.max(minX, windowSize.width - maxBound - dragSize.width);
-                }
-                
-                // 确保最小边界不大于最大边界
-                if (minX > maxX) {
-                    [minX, maxX] = [maxX, minX];
+                    minX = Math.max(minX, containerWidth - maxBound - dragSize.width);
                 }
             }
         }
@@ -171,30 +163,24 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
                 // 底部位置：boundsY=[底边最小距离, 底边最大距离]
                 // 直接使用边界值作为bottom的限制
                 if (minBound !== undefined && maxBound !== undefined) {
-                    minY = Math.max(minY, windowSize.height - maxBound - dragSize.height);
-                    maxY = Math.min(maxY, windowSize.height - minBound - dragSize.height);
+                    minY = Math.max(minY, containerHeight - maxBound - dragSize.height);
+                    maxY = Math.min(maxY, containerHeight - minBound - dragSize.height);
                 } else if (minBound !== undefined) {
                     // 只有minBound：设置最大边界，最小边界保持默认
-                    maxY = Math.min(maxY, windowSize.height - minBound - dragSize.height);
+                    maxY = Math.min(maxY, containerHeight - minBound - dragSize.height);
                 } else if (maxBound !== undefined) {
                     // 只有maxBound：设置最小边界，最大边界保持默认
-                    minY = Math.max(minY, windowSize.height - maxBound - dragSize.height);
-                }
-                
-                // 确保最小边界不大于最大边界
-                if (minY > maxY) {
-                    [minY, maxY] = [maxY, minY];
+                    minY = Math.max(minY, containerHeight - maxBound - dragSize.height);
                 }
             }
         }
+        // 确保各个边界值在默认范围内
+        minX = clamp(minX, defaultBounds.minX, defaultBounds.maxX);
+        maxX = clamp(maxX, minX, defaultBounds.maxX);
+        minY = clamp(minY, defaultBounds.minY, defaultBounds.maxY);
+        maxY = clamp(maxY, minY, defaultBounds.maxY);
 
         return { minX, maxX, minY, maxY };
-    }
-    
-    // 保持向后兼容
-    get dragPositionRang() {
-        const { maxX, maxY } = this.dragPositionBoundaries;
-        return { width: maxX, height: maxY };
     }
 
     get curPositionKey() {
@@ -245,18 +231,17 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
 
     reportStartPosition() {
         if (this.draggerRef) {
+            // 获取缩放比例
+            const { scaleX, scaleY } = getScaleRatio(this.getContainer());
+            this.cachedScaleX = scaleX;
+            this.cachedScaleY = scaleY;
             const { top, left } = this.draggerRef.getBoundingClientRect();
             const containerRect = this.getContainerRect();
             // console.log(containerRect, 'containerRect');
             
-            // 获取缩放比例
-            const { scaleX, scaleY } = getScaleRatio(this.draggerRef);
-            this.cachedScaleX = scaleX;
-            this.cachedScaleY = scaleY;
-            
             // 计算相对于容器的位置，并除以缩放比例得到未缩放的坐标
-            this.startTop = (top - containerRect.top + containerRect.scrollerScrollTop) / scaleY + containerRect.scrollTop;
-            this.startLeft = (left - containerRect.left + containerRect.scrollerScrollLeft) / scaleX + containerRect.scrollLeft;
+            this.startTop = top / scaleY - containerRect.top + containerRect.scrollTop - containerRect.borderTopWidth;
+            this.startLeft = left / scaleY - containerRect.left + containerRect.scrollLeft - containerRect.borderLeftWidth;
         }
     }
 
@@ -437,7 +422,7 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
     calcPosition = () => {
         const { lockAxis } = this.props;
         const { minX, maxX, minY, maxY } = this.dragPositionBoundaries;
-        const containerSize = this.windowSize;
+        const {height, width} = this.getContainerRect();
         
         // 计算新的位置
         let newTop = this.startTop;
@@ -451,13 +436,13 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         }
         
         // 应用边界限制
-        const realTop = Math.min(Math.max(minY, newTop), maxY);
-        const realLeft = Math.min(Math.max(minX, newLeft), maxX);
-        const realBottom = containerSize.height - realTop - this.dragBoxSize.height;
-        const realRight = containerSize.width - realLeft - this.dragBoxSize.width;
+        const realTop = clamp(newTop, minY, maxY);
+        const realLeft = clamp(newLeft, minX, maxX);
+        const realBottom = height - realTop - this.dragBoxSize.height;
+        const realRight = width - realLeft - this.dragBoxSize.width;
         if (realTop !== this.state.top || realLeft !== this.state.left || this.state.bottom !== realBottom || this.state.right !== realRight) {
-            // console.log(minY, maxY, this.startTop, this.dY, newTop, realTop, 'calcPosition y');
-            // console.log(minX, maxX, this.startLeft, this.dX, newLeft, realLeft, 'calcPosition x');
+            // console.log(minY, maxY, this.startTop, this.dY, newTop, realTop, 'minY, maxY, this.startTop, this.dY, newTop, realTop --- calcPosition y');
+            // console.log(minX, maxX, this.startLeft, this.dX, newLeft, realLeft, 'minX, maxX, this.startLeft, this.dX, newLeft, realLeft ---calcPosition x');
             this.setState({
                 top: realTop,
                 left: realLeft,

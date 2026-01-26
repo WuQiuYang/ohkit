@@ -35,6 +35,7 @@ const DraggableContentWrapper = ({
         borderRadius: "8px",
         padding: "16px",
         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+        whiteSpace: "nowrap",
       }}
     >
       {children}
@@ -168,7 +169,7 @@ export const TransformParent: Story = {
     <div style={{ 
       width: '600px', 
       height: '400px', 
-      border: '2px solid #1890ff',
+      border: '20px solid #1890ff',
       transform: 'scale(0.6)',
       transformOrigin: 'top left',
       padding: '20px',
@@ -184,7 +185,7 @@ export const TransformParent: Story = {
 
 export const TransformParentWithBounds: Story = {
   args: {
-    children: '在 transform 父元素中带边界拖拽',
+    children: <DraggableContentWrapper>{'在 transform 父元素中带边界拖拽'}</DraggableContentWrapper>,
     placement: 'bottom-right',
     offsetX: 50,
     offsetY: 50,
@@ -196,7 +197,7 @@ export const TransformParentWithBounds: Story = {
     <div style={{ 
       width: '600px', 
       height: '400px', 
-      border: '2px solid #1890ff',
+      border: '20px solid #1890ff',
       transform: 'scale(0.8)',
       transformOrigin: 'top left',
       padding: '20px',
@@ -226,7 +227,7 @@ export const AbsoluteMode: Story = {
       position: 'relative',
       width: '600px', 
       height: '400px', 
-      border: '2px solid #52c41a',
+      border: '10px solid #52c41a',
       padding: '20px',
       background: '#f6ffed'
     }}>
@@ -240,7 +241,7 @@ export const AbsoluteMode: Story = {
 
 export const AbsoluteModeWithBounds: Story = {
   args: {
-    children: 'Absolute 模式带边界',
+    children: <DraggableContentWrapper>{'Absolute 模式带边界'}</DraggableContentWrapper>,
     placement: 'bottom-right',
     offsetX: 50,
     offsetY: 50,
@@ -254,7 +255,7 @@ export const AbsoluteModeWithBounds: Story = {
       // position: 'relative',
       width: '600px', 
       height: '400px', 
-      border: '2px solid #52c41a',
+      border: '10px solid #52c41a',
       padding: '20px',
       background: '#f6ffed',
       overflow: 'auto'
