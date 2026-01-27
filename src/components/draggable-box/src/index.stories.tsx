@@ -216,7 +216,7 @@ export const TransformParentWithBounds: Story = {
 
 export const AbsoluteMode: Story = {
   args: {
-    children: 'Absolute 定位模式',
+    children: <DraggableContentWrapper>{'Absolute 定位模式'}</DraggableContentWrapper>,
     placement: 'bottom-right',
     offsetX: 50,
     offsetY: 50,

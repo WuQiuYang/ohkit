@@ -4,7 +4,7 @@ import {
   classNames as cx,
 } from "@ohkit/prefix-classname";
 import {addEventListener, addClass} from '@ohkit/dom-helper';
-import {findFixedPositionParent, findAbsolutePositionParent, getScaleRatio, clamp} from './utils';
+import {findFixedPositionParent, findAbsolutePositionParent, getScaleRatio, clamp, supportsTouchEvents} from './utils';
 import {ValidPlacement} from './constants';
 import {DraggableBoxProps, DraggableBoxState} from './type';
 
@@ -20,6 +20,7 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         disabled: false,
         lockAxis: 'none',
         showDragArea: false,
+        showDragAreaOverMoveDistanse: 5,
         positionMode: 'fixed',
     };
 
@@ -226,6 +227,7 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
     __bodyClassDisposer?: () => void;
     __upDisposer?: () => void;
     __resizeDisposer?: () => void;
+    __preventScrollDisposer?: () => void;
 
     dragAreaRef: HTMLDivElement | null = null;
 
@@ -245,15 +247,19 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         }
     }
 
-    enableDrag = () => {
+    enableDrag = (isTouch = false) => {
         this.reportStartPosition();
         this.__moveDisposer?.();
-        this.__moveDisposer = addEventListener(document, 'mousemove', (evt) => {
+        this.__moveDisposer = addEventListener(isTouch && this.draggerRef ? this.draggerRef : document, isTouch ? 'touchmove' : 'mousemove', (evt) => {
+            evt.stopPropagation();
+            if (isTouch) {
+                evt.preventDefault();
+            }
             // INFO: 移动过程中禁止click事件
             if (!this.__clickDisposer) {
                 const moveDistanse = Math.sqrt(Math.pow(this.dX, 2) + Math.pow(this.dY, 2));
-                // INFO: 移动超过5px？？ 确保用户有真实的移动意愿，而不是手抖～～
-                if (moveDistanse > 5) {
+                // INFO: 移动超过px？？ 确保用户有真实的移动意愿，而不是手抖～～
+                if (moveDistanse > (this.props.showDragAreaOverMoveDistanse || 5)) {
                     this.__clickDisposer = addEventListener(
                         document,
                         'click',
@@ -270,17 +276,17 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
                     }
                 }
             }
-            this.dragging(evt);
-        }, true);
+            this.dragging(evt as TouchEvent | MouseEvent);
+        }, {
+            passive: !isTouch
+        });
 
         this.__upDisposer?.();
         this.__upDisposer = addEventListener(
             document,
             'mouseup',
-            (evt) => {
+            () => {
                 this.endDrag();
-                evt.stopPropagation();
-                evt.preventDefault();
             },
             true
         );
@@ -294,11 +300,11 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         this.axisX = evt.nativeEvent.pageX;
         this.axisY = evt.nativeEvent.pageY;
         if (!this.props.disabled) {
-          this.enableDrag();
+            this.enableDrag();
         }
     };
 
-    dragging = (evt: MouseEvent) => {
+    dragging = (evt: MouseEvent | TouchEvent) => {
         this.isDragging = true;
         const { lockAxis } = this.props;
         const { minX, maxX, minY, maxY } = this.dragPositionBoundaries;
@@ -307,9 +313,21 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         const scaleX = this.cachedScaleX;
         const scaleY = this.cachedScaleY;
         
+        // 获取坐标
+        let pageX: number, pageY: number;
+        if (evt instanceof TouchEvent) {
+            const touch = evt.touches[0];
+            if (!touch) return;
+            pageX = touch.pageX;
+            pageY = touch.pageY;
+        } else {
+            pageX = evt.pageX;
+            pageY = evt.pageY;
+        }
+        
         // 计算原始偏移量（需要除以缩放比例）
-        this.dX = (evt.pageX - (this.axisX || 0)) / scaleX;
-        this.dY = (evt.pageY - (this.axisY || 0)) / scaleY;
+        this.dX = (pageX - (this.axisX || 0)) / scaleX;
+        this.dY = (pageY - (this.axisY || 0)) / scaleY;
         
         // 应用方向锁定并计算变换值
         let translateX = this.dX;
@@ -346,7 +364,16 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         if (this.draggerRef) {
             this.draggerRef.style.transform = `translate(${translateX}px, ${translateY}px)`;
         }
-        evt.stopPropagation();
+    };
+
+    startTouchDrag = (evt: React.TouchEvent<HTMLDivElement>) => {
+        const touch = evt.touches[0];
+        if (!touch) return;
+        this.axisX = touch.pageX;
+        this.axisY = touch.pageY;
+        if (!this.props.disabled) {
+            this.enableDrag(true);
+        }
     };
 
     endDrag = () => {
@@ -362,8 +389,10 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
             }
         }
 
-        this.__moveDisposer?.();
-        this.__moveDisposer = undefined;
+        if (this.__moveDisposer) {
+            this.__moveDisposer();
+            this.__moveDisposer = undefined;
+        }
         if (this.__clickDisposer) {
           requestAnimationFrame(() => {
             if (this.__clickDisposer) {
@@ -372,10 +401,14 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
             }
           });
         }
-        this.__upDisposer?.();
-        this.__upDisposer = undefined;
-        this.__bodyClassDisposer?.();
-        this.__bodyClassDisposer = undefined;
+        if (this.__upDisposer) {
+            this.__upDisposer();
+            this.__upDisposer = undefined;
+        }
+        if (this.__bodyClassDisposer) {
+            this.__bodyClassDisposer();
+            this.__bodyClassDisposer = undefined;
+        }
 
         this.isDragging = false;
     };
@@ -464,6 +497,13 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         this.__resizeDisposer = addEventListener(window, 'resize', () => {
             this.calcPosition();
         });
+
+        // 触屏设备时，阻止拖拽时滚动页面
+        if (supportsTouchEvents() && this.draggerRef) {
+            this.__preventScrollDisposer = addEventListener(this.draggerRef, 'touchmove', (evt) => {
+                evt.preventDefault();
+            });
+        }
     }
 
     componentWillUnmount() {
@@ -472,11 +512,12 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         this.__moveDisposer?.();
         this.__clickDisposer?.();
         this.__upDisposer?.();
+        this.__preventScrollDisposer?.();
     }
 
     render() {
         const { className, zIndex, children, showDragArea, positionMode = 'fixed' } = this.props;
-        const { startDrag, endDrag } = this;
+        const { startDrag, startTouchDrag, endDrag } = this;
         const stl = {
             zIndex,
             ...this.position,
@@ -508,8 +549,10 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
                     ref={(r) => {
                         this.draggerRef = r;
                     }}
-                    onMouseDown={startDrag}
-                    onMouseUp={endDrag}
+                    onMouseDownCapture={startDrag}
+                    onMouseUpCapture={endDrag}
+                    onTouchStartCapture={startTouchDrag}
+                    onTouchEndCapture={endDrag}
                 >
                     {children}
                 </div>

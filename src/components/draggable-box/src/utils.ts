@@ -86,3 +86,13 @@ export function getScaleRatio(dom?: HTMLElement | null): { scaleX: number; scale
 export function clamp(value: number, min: number, max: number) {
     return Math.min(Math.max(value, min), max);
 }
+
+
+/**
+ * 检测当前环境是否支持触摸事件
+ * 
+ * @returns 如果环境支持触摸事件返回 true，否则返回 false
+ */
+export function supportsTouchEvents() {
+    return typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+};

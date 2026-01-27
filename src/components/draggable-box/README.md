@@ -295,6 +295,7 @@ function TransformExample() {
 | `boundsY` | `[number?, number?]` | - | Y轴边界范围 `[min, max]` |
 | `positionMode` | `'fixed'` \| `'absolute'` | `'fixed'` | 定位模式 |
 | `showDragArea` | `boolean` | `false` | 是否显示拖拽区域可视化 |
+| `showDragAreaOverMoveDistanse` | `number` | `5` | 超过多少像素移动距离才显示拖拽区域 |
 
 ### 💡 定位模式说明
 
@@ -440,6 +441,14 @@ function TransformExample() {
   showDragArea={true}
 >
   {/* 拖拽时显示可拖拽区域 */}
+</DraggableBox>
+
+// ✅ 推荐：调整拖拽区域显示灵敏度
+<DraggableBox 
+  showDragArea={true}
+  showDragAreaOverMoveDistanse={10}  // 移动超过10px才显示区域，避免抖动误触
+>
+  {/* 提高拖拽区域显示的灵敏度 */}
 </DraggableBox>
 ```
 
