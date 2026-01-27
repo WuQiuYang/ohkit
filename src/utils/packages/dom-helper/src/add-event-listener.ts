@@ -8,13 +8,6 @@ export function addEventListener<K extends keyof WindowEventMap>(
   cb: (this: Window, evt: WindowEventMap[K]) => any,
   options?: boolean | AddEventListenerOptions
 ): () => void;
-export function addEventListener(
-  dom: Window,
-  type: string,
-  cb: EventListenerOrEventListenerObject,
-  options?: boolean | AddEventListenerOptions
-): () => void;
-
 // Document 事件监听器  
 export function addEventListener<K extends keyof DocumentEventMap>(
   dom: Document,
@@ -22,28 +15,29 @@ export function addEventListener<K extends keyof DocumentEventMap>(
   cb: (this: Document, evt: DocumentEventMap[K]) => any,
   options?: boolean | AddEventListenerOptions
 ): () => void;
-export function addEventListener(
-  dom: Document,
-  type: string,
-  cb: EventListenerOrEventListenerObject,
-  options?: boolean | AddEventListenerOptions
-): () => void;
 
 // HTMLElement 事件监听器
 export function addEventListener<K extends keyof HTMLElementEventMap>(
   dom: HTMLElement,
-  type: K | string,
+  type: K,
   cb: (this: HTMLElement, evt: HTMLElementEventMap[K]) => any,
   options?: boolean | AddEventListenerOptions
 ): () => void
+
 export function addEventListener(
-  dom: HTMLElement,
+  dom: Window | Document | HTMLElement,
   type: string,
   cb: EventListenerOrEventListenerObject,
   options?: boolean | AddEventListenerOptions
 ): () => void;
 
-export function addEventListener(dom: HTMLElement | Document | Window, type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): () => void {
-  dom.addEventListener(type, listener, options);
-  return () => dom.removeEventListener(type, listener, options);
+export function addEventListener(
+  dom: Window | Document | HTMLElement,
+  type: string,
+  cb: EventListenerOrEventListenerObject,
+  options?: boolean | AddEventListenerOptions
+) {
+    dom.addEventListener(type, cb, options);
+    return () => dom.removeEventListener(type, cb, options);
 }
+
