@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/react-iframe",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "iframe封装，replace变更src，避免干扰主页面history",
   "keywords": [
     "react-iframe"
@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@ohkit/prefix-classname": "^0.0.3",
-    "@ohkit/react-helper": "0.0.6"
+    "@ohkit/react-helper": "0.0.7"
   },
   "peerDependencies": {
     "react": ">=17",

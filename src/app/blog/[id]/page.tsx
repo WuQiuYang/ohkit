@@ -161,6 +161,7 @@ export default async function BlogPost({ params }: { params: Promise<{ id: strin
   return (
     <Layout>
       <div className="md-container max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+        {/* @ts-expect-error - “MDXRemote”不能用作 JSX 组件*/}
         <MDXRemote source={post} />
       </div>
     </Layout>

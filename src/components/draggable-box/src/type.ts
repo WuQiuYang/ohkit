@@ -52,6 +52,11 @@ export interface DraggableBoxProps {
    */
   showDragArea?: boolean;
   /**
+   * 拖拽过程中，超出多少px时才显示拖拽区域可视化
+   * @default 5
+   */
+  showDragAreaOverMoveDistanse?: number;
+  /**
    * 定位模式
    * 'fixed' - 使用 fixed 定位（默认），动态查找影响 fixed 定位的父元素
    * 'absolute' - 使用 absolute 定位，基于最近的定位父元素
