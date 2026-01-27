@@ -25,7 +25,10 @@
     "update:internal-deps:dry": "node scripts/update-internal-deps.js --caret --dry-run",
     "plop": "cross-env NODE_OPTIONS='--import tsx' plop --plopfile=.plop/index.ts",
     "i": "node ./scripts/install-deps.js",
-    "i-d": "node ./scripts/install-deps.js -D"
+    "i-d": "node ./scripts/install-deps.js -D",
+    "type-check": "tsc --noEmit -p tsconfig.json",
+    "lint-staged": "lint-staged",
+    "prepare": "husky"
   },
   "dependencies": {
     "@ohkit/text-ellipsis": "^0.0.16",
@@ -63,11 +66,13 @@
     "eslint": "^8",
     "eslint-config-next": "15.0.4",
     "eslint-plugin-storybook": "^0.11.1",
+    "husky": "^9.1.7",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.0.3",
     "jest-environment-jsdom": "^30.0.5",
     "jest-transform-stub": "^2.0.0",
     "lerna": "^5.6.2",
+    "lint-staged": "^15.5.2",
     "microbundle": "^0.15.1",
     "next-mdx-remote": "^5.0.0",
     "plop": "^4.0.1",
@@ -81,5 +86,10 @@
   },
   "engines": {
     "node": ">=18.18.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix --no-ignore --max-warnings=10"
+    ]
   }
 }
