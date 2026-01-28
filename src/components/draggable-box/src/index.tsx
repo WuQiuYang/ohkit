@@ -65,8 +65,8 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         const container = this.getContainer(false);
         if (!container) {
             return {
-                width: window.innerWidth,
-                height: window.innerHeight,
+                width: document.documentElement.clientWidth, // window.innerWidth, 避免滚动条影响计算
+                height: document.documentElement.clientHeight, // window.innerHeight, 避免滚动条影响计算
                 left: 0,
                 top: 0,
                 scrollLeft: 0,
@@ -217,6 +217,10 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
     dY = 0;
     startTop = 0;
     startLeft = 0;
+    startBottom = 0;
+    startRight = 0;
+    translateX = 0;
+    translateY = 0;
 
     // 缓存缩放比例，避免在 dragging 中频繁计算
     cachedScaleX = 1;
@@ -244,6 +248,8 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
             // 计算相对于容器的位置，并除以缩放比例得到未缩放的坐标
             this.startTop = top / scaleY - containerRect.top + containerRect.scrollTop - containerRect.borderTopWidth;
             this.startLeft = left / scaleY - containerRect.left + containerRect.scrollLeft - containerRect.borderLeftWidth;
+            this.startBottom = containerRect.height - this.startTop - this.dragBoxSize.height;
+            this.startRight = containerRect.width - this.startLeft - this.dragBoxSize.width;
         }
     }
 
@@ -275,6 +281,18 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
                         this.showDragArea();
                     }
                 }
+            }
+            // 调用拖拽开始回调
+            if (!this.isDragging && this.props.onDragStart) {
+                const positionChange = {
+                    top: this.startTop,
+                    left: this.startLeft,
+                    bottom: this.startBottom,
+                    right: this.startRight,
+                    diffX: 0,
+                    diffY: 0
+                };
+                this.props.onDragStart(positionChange);
             }
             this.dragging(evt as TouchEvent | MouseEvent);
         }, {
@@ -360,10 +378,28 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
                 translateY = maxY - this.startTop;
             }
         }
+        if (this.translateX === translateX && this.translateY === translateY) {
+            return;
+        }
+
+        // 调用拖拽中回调
+        if (this.props.onDrag) {
+            const positionChange = {
+                top: this.startTop + translateY,
+                left: this.startLeft + translateX,
+                bottom: this.startBottom - translateY,
+                right: this.startRight - translateX,
+                diffX: translateX,
+                diffY: translateY
+            };
+            this.props.onDrag(positionChange);
+        }
         
         if (this.draggerRef) {
             this.draggerRef.style.transform = `translate(${translateX}px, ${translateY}px)`;
         }
+        this.translateX = translateX;
+        this.translateY = translateY;
     };
 
     startTouchDrag = (evt: React.TouchEvent<HTMLDivElement>) => {
@@ -378,7 +414,9 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
 
     endDrag = () => {
         if (this.isDragging) {
-            this.calcPosition();
+            const positionChange = this.calcPosition();
+            // 调用拖拽结束回调
+            this.props.onDragEnd?.(positionChange);
             if (this.draggerRef) {
                 this.draggerRef.style.transform = '';
             }
@@ -474,8 +512,6 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         const realBottom = height - realTop - this.dragBoxSize.height;
         const realRight = width - realLeft - this.dragBoxSize.width;
         if (realTop !== this.state.top || realLeft !== this.state.left || this.state.bottom !== realBottom || this.state.right !== realRight) {
-            // console.log(minY, maxY, this.startTop, this.dY, newTop, realTop, 'minY, maxY, this.startTop, this.dY, newTop, realTop --- calcPosition y');
-            // console.log(minX, maxX, this.startLeft, this.dX, newLeft, realLeft, 'minX, maxX, this.startLeft, this.dX, newLeft, realLeft ---calcPosition x');
             this.setState({
                 top: realTop,
                 left: realLeft,
@@ -483,9 +519,20 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
                 right: realRight
             });
         }
+        const positionChange = {
+            top: realTop,
+            left: realLeft,
+            bottom: realBottom,
+            right: realRight,
+            diffX: realLeft - this.startLeft,
+            diffY: realTop - this.startTop
+        };
         this.startTop = realTop;
         this.startLeft = realLeft;
+        this.startBottom = realBottom;
+        this.startRight = realRight;
         this.dX = this.dY = 0;
+        return positionChange;
     };
 
 

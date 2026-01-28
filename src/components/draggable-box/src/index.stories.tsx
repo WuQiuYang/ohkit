@@ -269,3 +269,22 @@ export const AbsoluteModeWithBounds: Story = {
     </div>
   ),
 };
+
+export const WithCallbacks: Story = {
+  args: {
+    children: <DraggableContentWrapper>{'拖拽回调函数示例 - 查看控制台输出'}</DraggableContentWrapper>,
+    placement: 'bottom-right',
+    boundsX: [50, 300],
+    boundsY: [50, 200],
+    showDragArea: true,
+    onDragStart: (positionChange) => {
+      console.log('🚀 拖拽开始 - 位置:', positionChange);
+    },
+    onDrag: (positionChange) => {
+      console.log('🔄 拖拽中 - 实时位置:', positionChange);
+    },
+    onDragEnd: (positionChange) => {
+      console.log('✅ 拖拽结束 - 最终位置:', positionChange);
+    },
+  },
+};
