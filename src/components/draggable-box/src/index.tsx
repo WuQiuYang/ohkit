@@ -10,6 +10,8 @@ import {DraggableBoxProps, DraggableBoxState} from './type';
 
 import './style.scss';
 
+export * from './utils';
+export * from './type';
 export const c = p("ohkit-draggable-box__");
 export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBoxState> {
     static defaultProps: Partial<DraggableBoxProps> = {
@@ -26,17 +28,20 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
 
     constructor(props: DraggableBoxProps) {
         super(props);
-        
-        const { placement = 'bottom-right', offsetY = 20, offsetX = 20 } = props;
+        const { offsetX, offsetY } = this.props;
+        this.state = this.formatState({offsetX, offsetY});
+    }
+
+    private formatState({offsetX = DraggableBox.defaultProps.offsetX, offsetY = DraggableBox.defaultProps.offsetY} = {}) {
+        const { placement = 'bottom-right' } = this.props;
         const [placementY, placementX] = placement.split('-') as ['top' | 'bottom', 'left' | 'right'];
-        
-        // 简化状态初始化
-        this.state = {
+        const newState = {
             top: placementY === 'top' ? offsetY : undefined,
             bottom: placementY === 'bottom' ? offsetY : undefined,
             left: placementX === 'left' ? offsetX : undefined,
             right: placementX === 'right' ? offsetX : undefined,
-        };
+        }
+        return newState;
     }
 
     private prePositionMode: DraggableBoxProps['positionMode'];
@@ -226,16 +231,16 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
     cachedScaleX = 1;
     cachedScaleY = 1;
 
-    __moveDisposer?: () => void;
-    __clickDisposer?: () => void;
-    __bodyClassDisposer?: () => void;
-    __upDisposer?: () => void;
-    __resizeDisposer?: () => void;
-    __preventScrollDisposer?: () => void;
+    private __moveDisposer?: () => void;
+    private __clickDisposer?: () => void;
+    private __bodyClassDisposer?: () => void;
+    private __upDisposer?: () => void;
+    private __resizeDisposer?: () => void;
+    private __preventScrollDisposer?: () => void;
 
     dragAreaRef: HTMLDivElement | null = null;
 
-    reportStartPosition() {
+    private reportStartPosition() {
         if (this.draggerRef) {
             // 获取缩放比例
             const { scaleX, scaleY } = getScaleRatio(this.getContainer());
@@ -535,6 +540,13 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         return positionChange;
     };
 
+    // 更新状态并计算位置 (外部可以调用)
+    updateState = ({offsetX, offsetY}: Pick<DraggableBoxProps, 'offsetX' | 'offsetY'> = {}) => {
+        this.setState(this.formatState({offsetX, offsetY}), () => {
+            this.reportStartPosition();
+            this.calcPosition();
+        });
+    }
 
     componentDidMount() {
         // 检查初始位置是否在边界范围内，如果不在则修正
@@ -571,7 +583,7 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
             position: positionMode
         };
         return (
-            <>
+            <React.Fragment>
                 {showDragArea && (
                     <div
                         className={c('drag-area')}
@@ -603,9 +615,7 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
                 >
                     {children}
                 </div>
-            </>
+            </React.Fragment>
         );
     }
 }
-
-export default DraggableBox;

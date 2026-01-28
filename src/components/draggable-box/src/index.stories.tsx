@@ -274,6 +274,8 @@ export const WithCallbacks: Story = {
   args: {
     children: <DraggableContentWrapper>{'拖拽回调函数示例 - 查看控制台输出'}</DraggableContentWrapper>,
     placement: 'bottom-right',
+    offsetX: 50,
+    offsetY: 50,
     boundsX: [50, 300],
     boundsY: [50, 200],
     showDragArea: true,
