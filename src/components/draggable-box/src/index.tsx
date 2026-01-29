@@ -258,6 +258,12 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
         }
     }
 
+    dragingClassMap: Record<NonNullable<DraggableBoxProps['lockAxis']>, string> = {
+        'none': 'moving',
+        'x': 'moving-x',
+        'y': 'moving-y'
+    }
+
     enableDrag = (isTouch = false) => {
         this.reportStartPosition();
         this.__moveDisposer?.();
@@ -279,7 +285,7 @@ export class DraggableBox extends React.Component<DraggableBoxProps, DraggableBo
                         },
                         true
                     );
-                    this.__bodyClassDisposer = addClass([document.body, this.draggerRef], c('moving')) || undefined;
+                    this.__bodyClassDisposer = addClass([document.documentElement, this.draggerRef], c(this.dragingClassMap[this.props.lockAxis || 'none'])) || undefined;
                     
                     // 显示拖拽区域
                     if (this.props.showDragArea && this.dragAreaRef) {
