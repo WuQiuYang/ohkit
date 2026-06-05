@@ -1,6 +1,6 @@
 {
   "name": "@ohkit/draggable-box",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "可拖拽容器",
   "keywords": [
     "draggable-box"
