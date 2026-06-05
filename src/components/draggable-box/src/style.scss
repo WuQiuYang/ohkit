@@ -2,7 +2,7 @@ $prefix: ohkit;
 
 .#{$prefix}-draggable-box__ {
     &container {
-        // position 由内联样式动态控制，默认为 fixed
+        // position 由内联样式动态控制，默认为 fixed, 外部可修改
         user-select: none;
         cursor: grab;
     }
