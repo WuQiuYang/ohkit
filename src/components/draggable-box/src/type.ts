@@ -1,5 +1,14 @@
 import type {ValidPlacement} from './constants';
 
+export interface IPositionChange {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+  diffX: number;
+  diffY: number;
+}
+
 export interface DraggableBoxProps {
   className?: string;
   children?: React.ReactNode;
@@ -63,6 +72,18 @@ export interface DraggableBoxProps {
    * @default 'fixed'
    */
   positionMode?: 'fixed' | 'absolute';
+  /**
+   * 拖拽开始回调函数
+   */
+  onDragStart?: (positionChange: IPositionChange) => void;
+  /**
+   * 拖拽中回调函数
+   */
+  onDrag?: (positionChange: IPositionChange) => void;
+  /**
+   * 拖拽结束回调函数
+   */
+  onDragEnd?: (positionChange: IPositionChange) => void;
 }
 
 export interface DraggableBoxState {

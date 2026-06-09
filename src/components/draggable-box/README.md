@@ -296,6 +296,56 @@ function TransformExample() {
 | `positionMode` | `'fixed'` \| `'absolute'` | `'fixed'` | 定位模式 |
 | `showDragArea` | `boolean` | `false` | 是否显示拖拽区域可视化 |
 | `showDragAreaOverMoveDistanse` | `number` | `5` | 超过多少像素移动距离才显示拖拽区域 |
+| `onDragStart` | `(positionChange: IPositionChange) => void` | - | 拖拽开始回调函数 |
+| `onDrag` | `(positionChange: IPositionChange) => void` | - | 拖拽中回调函数 |
+| `onDragEnd` | `(positionChange: IPositionChange) => void` | - | 拖拽结束回调函数 |
+
+### 💡 回调函数说明
+
+DraggableBox 提供了三个拖拽生命周期回调函数，方便实时监控拖拽状态：
+
+#### `onDragStart(positionChange: IPositionChange)`
+- 在拖拽开始时触发
+- `positionChange` 包含：
+  - `left`: 起始位置的左侧坐标
+  - `top`: 起始位置的顶部坐标
+  - `right`: 起始位置的右侧坐标
+  - `bottom`: 起始位置的底部坐标
+  - `diffX`: X 轴偏移量（始终为 0）
+  - `diffY`: Y 轴偏移量（始终为 0）
+
+#### `onDrag(positionChange: IPositionChange)`
+- 在拖拽过程中实时触发
+- `positionChange` 包含：
+  - `left`: 当前实时位置的左侧坐标
+  - `top`: 当前实时位置的顶部坐标
+  - `right`: 当前实时位置的右侧坐标
+  - `bottom`: 当前实时位置的底部坐标
+  - `diffX`: 相对于起始位置的 X 轴偏移量
+  - `diffY`: 相对于起始位置的 Y 轴偏移量
+
+#### `onDragEnd(positionChange: IPositionChange)`
+- 在拖拽结束时触发
+- `positionChange` 包含：
+  - `left`: 最终位置的左侧坐标
+  - `top`: 最终位置的顶部坐标
+  - `right`: 最终位置的右侧坐标
+  - `bottom`: 最终位置的底部坐标
+  - `diffX`: 相对于起始位置的 X 轴总偏移量
+  - `diffY`: 相对于起始位置的 Y 轴总偏移量
+
+#### IPositionChange 接口
+
+```typescript
+interface IPositionChange {
+  left: number;   // 左侧坐标（相对于容器左侧）
+  top: number;    // 顶部坐标（相对于容器顶部）
+  right: number;  // 右侧坐标（相对于容器右侧）
+  bottom: number; // 底部坐标（相对于容器底部）
+  diffX: number;  // X 轴偏移量（相对于起始位置）
+  diffY: number;  // Y 轴偏移量（相对于起始位置）
+}
+```
 
 ### 💡 定位模式说明
 
@@ -452,7 +502,129 @@ function TransformExample() {
 </DraggableBox>
 ```
 
-### 5. 响应式设计
+### 5. 拖拽回调函数使用
+
+```tsx
+function DraggableWithCallbacks() {
+  const [position, setPosition] = useState({ left: 0, top: 0, diffX: 0, diffY: 0 });
+  const [draggingState, setDraggingState] = useState('idle');
+
+  return (
+    <div>
+      {/* 状态显示 */}
+      <div style={{ 
+        padding: '10px', 
+        background: '#f5f5f5', 
+        marginBottom: '10px',
+        borderRadius: '4px'
+      }}>
+        状态: {draggingState} | 左: {position.left}px | 顶: {position.top}px
+      </div>
+
+      <DraggableBox
+        placement="bottom-right"
+        boundsX={[50, 400]}
+        boundsY={[50, 300]}
+        onDragStart={(change) => {
+          setDraggingState('dragging');
+          console.log('开始拖拽', change);
+        }}
+        onDrag={(change) => {
+          setPosition(change);
+          console.log('拖拽中', change);
+        }}
+        onDragEnd={(change) => {
+          setDraggingState('idle');
+          setPosition(change);
+          console.log('拖拽结束', change);
+        }}
+      >
+        <div style={{ padding: '16px', background: '#e6f7ff' }}>
+          拖拽我并查看回调函数输出
+        </div>
+      </DraggableBox>
+    </div>
+  );
+}
+```
+
+#### 实时位置跟踪示例
+
+```tsx
+function PositionTracker() {
+  const [positions, setPositions] = useState<IPositionChange[]>([]);
+
+  return (
+    <div>
+      <DraggableBox
+        onDrag={(positionChange) => {
+          setPositions(prev => [...prev.slice(-9), positionChange]); // 保留最近10个位置
+        }}
+        onDragEnd={(finalPosition) => {
+          console.log('最终位置:', finalPosition);
+        }}
+      >
+        <div style={{ padding: '12px', background: '#fff7e6' }}>
+          实时位置追踪
+        </div>
+      </DraggableBox>
+      
+      {/* 显示实时位置数据 */}
+      <div style={{ marginTop: '10px', fontSize: '12px' }}>
+        {positions.map((pos, i) => (
+          <div key={i}>
+            左: {pos.left.toFixed(1)}px, 顶: {pos.top.toFixed(1)}px, dX: {pos.diffX.toFixed(1)}px, dY: {pos.diffY.toFixed(1)}px
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+#### 边界条件检测示例
+
+```tsx
+function BoundaryDetector() {
+  const [boundaryHit, setBoundaryHit] = useState('none');
+
+  return (
+    <div>
+      <div style={{ 
+        padding: '10px', 
+        background: boundaryHit === 'x' ? '#ffccc7' : 
+                    boundaryHit === 'y' ? '#d6e4ff' : '#f6ffed',
+        marginBottom: '10px',
+        borderRadius: '4px'
+      }}>
+        边界碰撞: {boundaryHit === 'x' ? 'X轴' : boundaryHit === 'y' ? 'Y轴' : '无'}
+      </div>
+
+      <DraggableBox
+        boundsX={[50, 300]}
+        boundsY={[50, 200]}
+        onDrag={(change) => {
+          // 检测是否碰撞边界
+          const isXBoundary = Math.abs(change.diffX) < 1 && 
+                            (change.left <= 50 || change.right <= 50);
+          const isYBoundary = Math.abs(change.diffY) < 1 && 
+                            (change.top <= 50 || change.bottom <= 50);
+          
+          if (isXBoundary) setBoundaryHit('x');
+          else if (isYBoundary) setBoundaryHit('y');
+          else setBoundaryHit('none');
+        }}
+      >
+        <div style={{ padding: '12px', background: '#f0f0f0' }}>
+          边界碰撞检测
+        </div>
+      </DraggableBox>
+    </div>
+  );
+}
+```
+
+### 6. 响应式设计
 
 ```tsx
 function ResponsiveDraggable() {

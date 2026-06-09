@@ -89,7 +89,7 @@ interface ITextEllipsis
    */
   resetFoldWhenChildrenOrEllipsisChange?: boolean;
   /**
-   * 折叠状态
+   * 折叠状态(可传入作为默认值，但不会受控)
    * @default true
    */
   fold?: boolean;
