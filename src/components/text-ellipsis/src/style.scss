@@ -13,7 +13,7 @@ $btn-fold-color: #4c84ff; // #727a8b;
     align-items: flex-start; // 配合flex食用，否则内部 display: -webkit-box 截断不生效
     overflow: hidden; // 避免 .content-shadow-dom 溢出父容器导致外部滚动条视觉展示异常
     position: relative;
-    white-space: initial; // 防止继承父级
+    white-space: pre-wrap; // 防止继承父级，若要修改，可传入 prop.style.whiteSpace = 'xxx' 覆盖
 
     // 保留dom用于计算高度, 不影响视图
     .content-shadow-dom {
